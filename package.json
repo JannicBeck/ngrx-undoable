@@ -1,0 +1,34 @@
+{
+  "name": "ngrx-undoable",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@gitlab.uni-koblenz.de:jannic/ngrx-undoable.git",
+  "author": "jannicbeck <jannicbeck@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc *.ts",
+    "watch": "tsc *.ts --watch",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/redux": "^3.6.0",
+    "jasmine": "^2.8.0",
+    "jest": "^21.2.1",
+    "typescript": "^2.5.2"
+  },
+  "dependencies": {
+    "@types/jest": "^21.1.2",
+    "ts-jest": "^21.1.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/__tests__/.*\\.(ts|tsx|js)$"
+  }
+}

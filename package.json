@@ -11,14 +11,11 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@types/redux": "^3.6.0",
     "jasmine": "^2.8.0",
     "jest": "^21.2.1",
-    "typescript": "^2.5.2"
-  },
-  "dependencies": {
     "@types/jest": "^21.1.2",
-    "ts-jest": "^21.1.0"
+    "ts-jest": "^21.1.0",
+    "typescript": "^2.5.2"
   },
   "jest": {
     "moduleFileExtensions": [

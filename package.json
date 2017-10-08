@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc *.ts",
     "watch": "tsc *.ts --watch",
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "devDependencies": {
     "jasmine": "^2.8.0",

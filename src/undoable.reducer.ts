@@ -9,20 +9,9 @@ import {
   DoNStatesExist
 } from './interfaces/internal'
 
-import {
-  Action,
-  Reducer,
-  Comparator,
-  Undoable,
-  UndoableReducer,
-} from './interfaces/public'
+import { Undoable, Action } from './interfaces/public'
 
-import {
-  RedoAction,
-  UndoAction,
-  UndoableAction,
-  UndoableTypes
-} from './undoable.action'
+import { UndoableTypes } from './undoable.action'
 
 
 // abstract from the order of future and past
@@ -33,8 +22,8 @@ const addTo         = <T> (x: T[], y: T) => y ? [ ...x, y ] : x
 
 
 // since the oldest past is the init action we never want to remove it from the past
-const doNPastStatesExit   : DoNStatesExist = (past, nStates)   => past.length   > nStates
-const doNFutureStatesExit : DoNStatesExist = (future, nStates) => future.length >= nStates
+const doNPastStatesExit: DoNStatesExist = (past, nStates) => past.length > nStates
+const doNFutureStatesExit: DoNStatesExist = (future, nStates) => future.length >= nStates
 
 
 const createGetPresentState: CreateGetPresentState = (reducer, initAction) => actions =>
@@ -143,7 +132,7 @@ const updateHistory: UpdateHistory = ( { past, future }, newState, action) => {
 
 
 
-export const undoable: UndoableReducer = (reducer, initAction, comparator = (s1, s2) => s1 === s2 ) => {
+export const undoable: Undoable = (reducer, initAction = { type: 'INIT' } as Action, comparator = (s1, s2) => s1 === s2 ) => {
 
   const initialState = {
     past    : [ initAction ],

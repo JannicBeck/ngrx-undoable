@@ -36,7 +36,7 @@ export interface Reducer<S, A extends Action> {
  * @member future An Array of Action objects that represent the future in the order: [latest, oldest]
  * 
  */
-export interface Undoable<S, A extends Action> {
+export interface UndoableState<S, A extends Action> {
   past    : A[]
   present : S
   future  : A[]
@@ -52,10 +52,13 @@ export interface Undoable<S, A extends Action> {
  * @template A Action object type.
  * 
  */
-export interface UndoableReducer {
-  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I, comparator?: Comparator<S>): (state: Undoable<S, A | Action> | Undoable<S, Action>, action: A | Action) => Undoable<S, A | Action> | Undoable<S, Action>
+export interface Undoable {
+  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I | Action, comparator?: Comparator<S>): UndoableReducer<S, A>
 }
 
+export interface UndoableReducer<S, A extends Action> {
+  (state: UndoableState<S, A | Action> | UndoableState<S, Action>, action: A | Action): UndoableState<S, A | Action> | UndoableState<S, Action>
+}
 
 /**
  * 

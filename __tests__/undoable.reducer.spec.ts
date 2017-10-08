@@ -377,7 +377,7 @@ describe('The undoable.reducer', () => {
       })
 
     })
-  }) // ==== undo/redo/forward sequence ====
+  }) // ==== forward actions ====
 
 
   describe('comparator', () => {

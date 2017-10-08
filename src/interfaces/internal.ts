@@ -1,17 +1,17 @@
 import {
   Action,
-  Undoable,
+  UndoableState,
   Reducer
 } from './public'
 
 
 export interface UpdateHistory {
-  <S, A extends Action | Action>(undoable: Undoable<S, A | Action>, newState: S, newAction: A): Undoable<S, A | Action>
+  <S, A extends Action | Action>(undoable: UndoableState<S, A | Action>, newState: S, newAction: A): UndoableState<S, A | Action>
 }
 
 
 export interface TravelOnce<S, A extends Action | Action> {
-  (state: Undoable<S, A | Action>): Undoable<S, A | Action>
+  (state: UndoableState<S, A | Action>): UndoableState<S, A | Action>
 }
 
 
@@ -26,7 +26,7 @@ export interface CreateTravelOne {
 
 
 export interface TravelNStates<S, A extends Action | Action> {
-  (state: Undoable<S, A | Action>, nStates: number): Undoable<S, A | Action>
+  (state: UndoableState<S, A | Action>, nStates: number): UndoableState<S, A | Action>
 }
 
 
@@ -49,17 +49,17 @@ export interface CreateGetPresentState {
 
 
 export interface TravelInTime<S, A extends Action | Action> {
-  (time: Action[], travelNStates: TravelNStates<S, A | Action>): Undoable<S, A | Action>
+  (time: Action[], travelNStates: TravelNStates<S, A | Action>): UndoableState<S, A | Action>
 }
 
 
 export interface CreateTravelInTime {
-  <S, A extends Action | Action>(state: Undoable<S, A | Action>, nStates: number): TravelInTime<S, A | Action>
+  <S, A extends Action | Action>(state: UndoableState<S, A | Action>, nStates: number): TravelInTime<S, A | Action>
 }
 
 
 export interface Travel<S, A extends Action | Action> {
-  (state: Undoable<S, A | Action | Action>, action: A | Action): Undoable<S, A | Action>
+  (state: UndoableState<S, A | Action>, action: A | Action): UndoableState<S, A | Action>
 }
 
 

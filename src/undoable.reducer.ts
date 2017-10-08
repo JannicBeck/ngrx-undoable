@@ -35,8 +35,8 @@ const limit         = <T> (x: T[], l: number) => x.length > l ? withoutOldest(x)
 
 
 // since the oldest past is the init action we never want to remove it from the past
-const doNPastStatesExit  : DoNStatesExist = (past, nStates) => past.length > nStates
-const doNFutureStatesExit: DoNStatesExist = (future, nStates) => future.length >= nStates
+const doNPastStatesExit   : DoNStatesExist = (past, nStates)   => past.length   > nStates
+const doNFutureStatesExit : DoNStatesExist = (future, nStates) => future.length >= nStates
 
 
 const createGetPresentState: CreateGetPresentState = (reducer, initAction) => actions =>
@@ -52,9 +52,7 @@ const createTravelNStates: CreateTravelNStates = (travelOnce) => {
       return state
     }
 
-    state = travelOnce(state)
-
-    return travelNStates(state, --nStates)
+    return travelNStates(travelOnce(state), --nStates)
 
   }
 
@@ -122,13 +120,14 @@ const createTravel: CreateTravel = (undoNStates, redoNStates) => (state, action)
 
 export const getTravel: GetTravel = (reducer, initAction, limits) => {
   
-    const getPresentState = createGetPresentState(reducer, initAction)
-    const travelOne       = createTravelOne(getPresentState, limits)
-    const undoNStates     = createTravelNStates(travelOne.undo)
-    const redoNStates     = createTravelNStates(travelOne.redo)
+  const getPresentState = createGetPresentState(reducer, initAction)
+  const travelOne       = createTravelOne(getPresentState, limits)
+  const undoNStates     = createTravelNStates(travelOne.undo)
+  const redoNStates     = createTravelNStates(travelOne.redo)
 
-    return createTravel(undoNStates, redoNStates)
-  }
+  return createTravel(undoNStates, redoNStates)
+
+}
 
 
 

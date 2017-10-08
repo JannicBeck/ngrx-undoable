@@ -1,3 +1,5 @@
+# <img src='https://raw.githubusercontent.com/JannicBeck/redux-undoable/master/logo/logo.png?token=AI2CACFgaovya0RMkjrQ9RN4Cai5DLr0ks5Z48vMwA%3D%3D' height='30'> Redux-Undoable
+
 # Redux-Undoable ⎌
 [Redux](https://github.com/reactjs/redux)/[Ngrx](https://github.com/ngrx) implementation of [Undo/Redo](http://redux.js.org/docs/recipes/ImplementingUndoHistory.html) based on Actions instead of States
 

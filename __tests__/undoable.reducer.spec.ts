@@ -304,12 +304,12 @@ describe('The undoable.reducer', () => {
         future  : [ ] // nothing to redo
       })
 
-      // const actualState4 = reducer(actualState3, redo())
-      // expect(actualState4).toEqual({
-      //   past    : [ init(), increment(), increment(), increment() ],
-      //   present : 3,
-      //   future  : [ ]
-      // })
+      const actualState4 = reducer(actualState3, redo())
+      expect(actualState4).toEqual({
+        past    : [ init(), increment(), increment(), increment() ],
+        present : 3,
+        future  : [ ]
+      })
 
     })
 
@@ -379,116 +379,45 @@ describe('The undoable.reducer', () => {
     })
   }) // ==== undo/redo/forward sequence ====
 
-  describe('future limit', () => {
-
-    it('should be tested', () => {
-      expect(true).toBeFalsy()
-    }) 
-
-    // it('should omit last future state if future limit is reached', () => {
-
-    //   const limitedFutureReducer = undoable(counter, init(), { future: 3 })
-
-    //   const initialState = {
-    //     past    : [ init(), increment() ],
-    //     present : 1,
-    //     future  : [ increment(), increment(), increment() ]
-    //   }
-
-    //   const actualState = limitedFutureReducer(initialState, undo())
-    //   expect(actualState).toEqual({
-    //     past    : [ init() ],
-    //     present : 0,
-    //     future  : [ increment(),  increment(), increment() ] // 4th is omitted because of limit
-    //   })
-
-    // })
-
-    // it('should add to future if future limit is just not reached', () => {
-
-    //   const limitedFutureReducer = undoable(counter, init(), { future: 3 })
-      
-    //   const initialState = {
-    //     past    : [ init(), increment() ],
-    //     present : 1,
-    //     future  : [ increment(), increment() ]
-    //   }
-
-    //   const actualState = limitedFutureReducer(initialState, undo())
-    //   expect(actualState).toEqual({
-    //     past    : [ init() ],
-    //     present : 0,
-    //     future  : [ increment(), increment(), increment() ]
-    //   })
-
-    // })
-
-
-  }) // ==== future limit ====
-
-
-  describe('past limit', () => {
-
-    it('should be implemented', () => {
-      expect(true).toBeFalsy()
-    }) 
-
-    // it('should omit first past state if past limit is reached', () => {
-
-    //   const limitedFutureReducer = undoable(counter, { past: 3 })
-
-    //   const initialState = {
-    //     past    : [ init(), increment(), increment(), increment() ],
-    //     present : 3,
-    //     future  : [ increment() ]
-    //   }
-
-    //   const actualState1 = limitedFutureReducer(initialState, redo())
-    //   expect(actualState1).toEqual({
-    //     past    : [ increment(), increment(), increment(), increment() ], // 0 is omitted because of limit
-    //     present : 4,
-    //     future  : []
-    //   })
-
-    //   const actualState2 = limitedFutureReducer(actualState1, increment())
-    //   expect(actualState2).toEqual({
-    //     past: [2, 3, 4], // 1 is omitted because of limit
-    //     present: 5,
-    //     future: []
-    //   })
-
-    // })
-
-    // it('should add to past if past limit is just not reached', () => {
-
-    //   const limitedFutureReducer = undoable(counter, { past: 3 })
-    //   const initialState = {
-    //     past: [0, 1],
-    //     present: 2,
-    //     future: [3]
-    //   }
-
-    //   const actualState1 = limitedFutureReducer(initialState, redo())
-    //   expect(actualState1).toEqual({
-    //     past: [0, 1, 2],
-    //     present: 3,
-    //     future: []
-    //   })
-
-    //   const actualState2 = limitedFutureReducer(initialState, decrement())
-    //   expect(actualState2).toEqual({
-    //     past: [0, 1, 2],
-    //     present: 1,
-    //     future: []
-    //   })
-    // })
-
-  }) // ==== past limit ====
 
   describe('comparator', () => {
-    it('should be implemented', () => {
-      expect(true).toBeFalsy()
-    }) 
-  })
+
+    it('default comparator should not add action to history if it does not change state', () => {
+
+      const initialState = {
+        past    : [ init(), increment() ],
+        present : 1,
+        future  : [ ]
+      }
+
+      // init will not change state
+      const action = init()
+
+      const actualState = reducer(initialState, action)
+      expect(actualState).toEqual(initialState)
+
+    })
+
+    it('provided comparator should be used', () => {
+
+      // comparator which always returns that states are equal,
+      // so no action should be added to the history
+      const reducerWithComparator = undoable(counter, init(), (s1, s2) => true)
+      
+      const initialState = {
+        past    : [ init() ],
+        present : 0,
+        future  : [ ]
+      }
+
+      // init will not change state
+      const action = increment()
+
+      const actualState = reducerWithComparator(initialState, action)
+      expect(actualState).toEqual(initialState)
+
+    })
+  
+  }) // ==== comparator ====
 
 })

@@ -1,18 +1,17 @@
 import {
   Action,
   Undoable,
-  Reducer,
-  Limits
+  Reducer
 } from './public'
 
 
 export interface UpdateHistory {
-  <S, A extends Action | Action>(undoable: Undoable<S, A | Action>, newState: S, newAction: A, pastLimit?: number): Undoable<S, A | Action>
+  <S, A extends Action | Action>(undoable: Undoable<S, A | Action>, newState: S, newAction: A): Undoable<S, A | Action>
 }
 
 
 export interface TravelOnce<S, A extends Action | Action> {
-  (state: Undoable<S, A | Action>, limit?: number): Undoable<S, A | Action>
+  (state: Undoable<S, A | Action>): Undoable<S, A | Action>
 }
 
 
@@ -22,7 +21,7 @@ export interface TravelOne<S, A extends Action | Action> {
 }
 
 export interface CreateTravelOne {
-  <S, A extends Action | Action>(getPresentState: GetPresentState<S, A | Action>, limits: Limits): TravelOne<S, A | Action>
+  <S, A extends Action | Action>(getPresentState: GetPresentState<S, A | Action>): TravelOne<S, A | Action>
 }
 
 
@@ -70,5 +69,5 @@ export interface CreateTravel {
 
 
 export interface GetTravel {
-  <S, A extends Action | Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I, limits: Limits): Travel<S, A | Action>
+  <S, A extends Action | Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I): Travel<S, A | Action>
 }

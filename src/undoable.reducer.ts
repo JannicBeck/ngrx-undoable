@@ -13,7 +13,6 @@ import {
   Action,
   Reducer,
   Comparator,
-  Limits,
   Undoable,
   UndoableReducer,
 } from './interfaces/public'
@@ -31,7 +30,6 @@ const latestFrom    = <T> (x: T[]) => x[ x.length - 1 ]
 const withoutLatest = <T> (x: T[]) => x.slice(0, x.length -1)
 const withoutOldest = <T> (x: T[]) => x.slice(1, x.length)
 const addTo         = <T> (x: T[], y: T) => y ? [ ...x, y ] : x
-const limit         = <T> (x: T[], l: number) => x.length > l ? withoutOldest(x) : x
 
 
 // since the oldest past is the init action we never want to remove it from the past
@@ -60,7 +58,7 @@ const createTravelNStates: CreateTravelNStates = (travelOnce) => {
 
 
 
-const createTravelOne: CreateTravelOne = (getPresentState, limits) => {
+const createTravelOne: CreateTravelOne = (getPresentState) => {
 
   return {
 
@@ -118,10 +116,10 @@ const createTravel: CreateTravel = (undoNStates, redoNStates) => (state, action)
 
 
 
-export const getTravel: GetTravel = (reducer, initAction, limits) => {
+export const getTravel: GetTravel = (reducer, initAction) => {
   
   const getPresentState = createGetPresentState(reducer, initAction)
-  const travelOne       = createTravelOne(getPresentState, limits)
+  const travelOne       = createTravelOne(getPresentState)
   const undoNStates     = createTravelNStates(travelOne.undo)
   const redoNStates     = createTravelNStates(travelOne.redo)
 
@@ -131,7 +129,7 @@ export const getTravel: GetTravel = (reducer, initAction, limits) => {
 
 
 
-const updateHistory: UpdateHistory = ( { past, future }, newState, action, pastLimit?) => {
+const updateHistory: UpdateHistory = ( { past, future }, newState, action) => {
   
   const newPast = addTo(past, action)
 
@@ -145,7 +143,7 @@ const updateHistory: UpdateHistory = ( { past, future }, newState, action, pastL
 
 
 
-export const undoable: UndoableReducer = (reducer, initAction, limits = { }, comparator = (s1, s2) => s1 === s2 ) => {
+export const undoable: UndoableReducer = (reducer, initAction, comparator = (s1, s2) => s1 === s2 ) => {
 
   const initialState = {
     past    : [ initAction ],
@@ -153,7 +151,7 @@ export const undoable: UndoableReducer = (reducer, initAction, limits = { }, com
     future  : [ ]
   }
 
-  const travel = getTravel(reducer, initAction, limits)
+  const travel = getTravel(reducer, initAction)
 
   return (state = initialState, action) => {
 
@@ -170,7 +168,7 @@ export const undoable: UndoableReducer = (reducer, initAction, limits = { }, com
           return state
         }
 
-        return updateHistory(state, newState, action, limits.past)
+        return updateHistory(state, newState, action)
 
     }
 

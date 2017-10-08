@@ -53,7 +53,7 @@ export interface Undoable<S, A extends Action> {
  * 
  */
 export interface UndoableReducer {
-  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I, limits?: Limits, comparator?: Comparator<S>): (state: Undoable<S, A | Action> | Undoable<S, Action>, action: A | Action) => Undoable<S, A | Action> | Undoable<S, Action>
+  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I, comparator?: Comparator<S>): (state: Undoable<S, A | Action> | Undoable<S, Action>, action: A | Action) => Undoable<S, A | Action> | Undoable<S, Action>
 }
 
 
@@ -69,21 +69,3 @@ export interface UndoableReducer {
  * 
  */
 export type Comparator<S> = (s1: S, s2: S) => boolean
-
-
-/**
- * The Limits of the undoable reducer.
- * Defaults are infinite.
- * 
- * To limit the history to 10 one would choose { past: 10, future: 10 }
- * 
- * Future and past can also differ: { past: 5, future: 10 }
- * 
- * Or limit only one: { past: 45 }
- * 
- * If a limit is reached, the oldest object in past/future is dropped.
- */
-export interface Limits {
-  past?   : number
-  future? : number
-}

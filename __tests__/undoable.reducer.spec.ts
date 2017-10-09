@@ -1,5 +1,5 @@
 import { undoable } from '../src/undoable.reducer'
-import { UndoAction, RedoAction, UndoableTypes, undo, redo } from '../src/undoable.action'
+import { UndoAction, RedoAction, UndoableTypes, undo, redo, group } from '../src/undoable.action'
 import { Action } from '../src/interfaces/public'
 
 enum Count {
@@ -181,7 +181,7 @@ describe('The undoable.reducer', () => {
       const initialState = {
         past    : [ init(), increment() ],
         present : 1,
-        future  : [ increment(), increment() ]
+        future  : [ decrement(), increment() ]
       }
 
       const action = redo()
@@ -190,7 +190,7 @@ describe('The undoable.reducer', () => {
       const expectedState = {
         past    : [ init(), increment(), increment() ],
         present : 2,
-        future  : [ increment() ]
+        future  : [ decrement() ]
       }
 
       const actualState = reducer(initialState, action)
@@ -378,6 +378,60 @@ describe('The undoable.reducer', () => {
 
     })
   }) // ==== forward actions ====
+
+
+  describe('group actions', () => {
+
+    it('should undo grouped actions', () => {
+
+      const initialState = {
+        past    : [ init() ],
+        present : 0,
+        future  : [ ]
+      }
+
+      const groupAction = group(increment(), increment())
+
+      const actualState1 = reducer(initialState, groupAction)
+
+      expect(actualState1).toEqual({
+        past    : [ init(), [ increment(), increment() ] ],
+        present : 2,
+        future  : [ ]
+      })
+
+      const actualState2 = reducer(actualState1, undo())
+
+      expect(actualState2).toEqual({
+        past    : [ init() ],
+        present : 0,
+        future  : [ [ increment(), increment() ] ]
+      })
+
+    })
+
+    it('should redo grouped actions', () => {
+      
+      const initialState = {
+        past    : [ init() ],
+        present : 0,
+        future  : [ [ increment(), increment(), decrement() ] ]
+      }
+
+      const action = redo()
+
+      const expectedState = {
+        past    : [ init(), [ increment(), increment(), decrement() ] ],
+        present : 1,
+        future  : [ ]
+      }
+
+      const actualState = reducer(initialState, action)
+      expect(actualState).toEqual(expectedState)
+
+    })
+
+  }) // ==== group actions ====
 
 
   describe('comparator', () => {

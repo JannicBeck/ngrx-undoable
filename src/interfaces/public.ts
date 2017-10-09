@@ -37,9 +37,9 @@ export interface Reducer<S, A extends Action> {
  * 
  */
 export interface UndoableState<S, A extends Action> {
-  past    : A[]
+  past    : (A | A[])[]
   present : S
-  future  : A[]
+  future  : (A |A[])[]
 }
 
 

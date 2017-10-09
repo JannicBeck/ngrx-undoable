@@ -1,12 +1,12 @@
 import {
   CreateTravelNStates,
   CreateTravelOne,
-  UpdateHistory,
   TravelNStates,
   CreateTravel,
   CreateGetPresentState,
-  GetTravel,
-  DoNStatesExist
+  DoNStatesExist,
+  AddToHistory,
+  CreateUpdateHistory
 } from './interfaces/internal'
 
 import { Undoable, Action } from './interfaces/public'
@@ -18,16 +18,18 @@ import { UndoableTypes } from './undoable.action'
 const latestFrom    = <T> (x: T[]) => x[ x.length - 1 ]
 const withoutLatest = <T> (x: T[]) => x.slice(0, x.length -1)
 const withoutOldest = <T> (x: T[]) => x.slice(1, x.length)
-const addTo         = <T> (x: T[], y: T) => y ? [ ...x, y ] : x
+const addTo         = <T> (x: (T | T[])[], y: T[] | T) => y ? [ ...x, y ] : x
 
+
+// (number | number[])
 
 // since the oldest past is the init action we never want to remove it from the past
 const doNPastStatesExit: DoNStatesExist = (past, nStates) => past.length > nStates
 const doNFutureStatesExit: DoNStatesExist = (future, nStates) => future.length >= nStates
 
 
-const createGetPresentState: CreateGetPresentState = (reducer, initAction) => actions =>
-  actions.reduce(reducer, reducer(undefined, initAction))
+const createGetPresentState: CreateGetPresentState = reducer => actions =>
+  [].concat(...actions).reduce(reducer, undefined)
 
 
 
@@ -39,7 +41,7 @@ const createTravelNStates: CreateTravelNStates = (travelOnce) => {
       return state
     }
 
-    return travelNStates(travelOnce(state), --nStates)
+    return travelNStates(travelOnce(state, nStates), --nStates)
 
   }
 
@@ -51,11 +53,15 @@ const createTravelOne: CreateTravelOne = (getPresentState) => {
 
   return {
 
-    undo ( { past, future }) {
+    undo (state, nStates = 1) {
 
-      const latestPast = latestFrom(past)
-      const futureWithLatestPast = addTo(future, latestPast)
-      const pastWithoutLatest = withoutLatest(past)
+      if (!doNPastStatesExit(state.past, nStates)) {
+        return state
+      }
+
+      const latestPast = latestFrom(state.past)
+      const futureWithLatestPast = addTo(state.future, latestPast)
+      const pastWithoutLatest = withoutLatest(state.past)
 
       return {
         past    : pastWithoutLatest,
@@ -65,15 +71,19 @@ const createTravelOne: CreateTravelOne = (getPresentState) => {
 
     },
 
-    redo ( { past, future }) {
+    redo (state, nStates = 1) {
 
-      const latestFuture = latestFrom(future)
-      const pastWithLatestFuture = addTo(past, latestFuture)
+      if (!doNFutureStatesExit(state.future, nStates)) {
+        return state;
+      }
+
+      const latestFuture = latestFrom(state.future)
+      const pastWithLatestFuture = addTo(state.past, latestFuture)
       
       return {
         past    : pastWithLatestFuture,
         present : getPresentState(pastWithLatestFuture),
-        future  : withoutLatest(future)
+        future  : withoutLatest(state.future)
       }
 
     }
@@ -84,52 +94,27 @@ const createTravelOne: CreateTravelOne = (getPresentState) => {
 
 
 
-const createTravel: CreateTravel = (undoNStates, redoNStates) => (state, action) => {
-
-    const nStates = action.payload
-
-    switch (action.type) {
+const addToHistory: AddToHistory = ( { past, future }, newPresent, actions) => {
   
-      case UndoableTypes.UNDO:
-        return doNPastStatesExit(state.past, nStates) ? undoNStates(state, nStates) : state
-  
-      case UndoableTypes.REDO:
-        return doNFutureStatesExit(state.future, nStates) ? redoNStates(state, nStates) : state
-      
-      default:
-        return state
-      
-      }
-  
-  }
-
-
-
-export const getTravel: GetTravel = (reducer, initAction) => {
-  
-  const getPresentState = createGetPresentState(reducer, initAction)
-  const travelOne       = createTravelOne(getPresentState)
-  const undoNStates     = createTravelNStates(travelOne.undo)
-  const redoNStates     = createTravelNStates(travelOne.redo)
-
-  return createTravel(undoNStates, redoNStates)
-
-}
-
-
-
-const updateHistory: UpdateHistory = ( { past, future }, newState, action) => {
-  
-  const newPast = addTo(past, action)
+  const newPast = addTo(past, actions)
 
   return {
     past    : newPast,
-    present : newState,
+    present : newPresent,
     future  : [ ]
   }
 
 }
 
+
+export const createUpdateHistory: CreateUpdateHistory = comparator => (state, newPresent, action) => {
+  
+  if (comparator(state.present, newPresent)) {
+    return state
+  }
+
+  return addToHistory(state, newPresent, action)
+}
 
 
 export const undoable: Undoable = (reducer, initAction = { type: 'INIT' } as Action, comparator = (s1, s2) => s1 === s2 ) => {
@@ -140,24 +125,28 @@ export const undoable: Undoable = (reducer, initAction = { type: 'INIT' } as Act
     future  : [ ]
   }
 
-  const travel = getTravel(reducer, initAction)
+  const getPresentState = createGetPresentState(reducer)
+  const travelOne       = createTravelOne(getPresentState)
+  const undoNStates     = createTravelNStates(travelOne.undo)
+  const redoNStates     = createTravelNStates(travelOne.redo)
+
+  const updateHistory   = createUpdateHistory(comparator)
 
   return (state = initialState, action) => {
 
     switch (action.type) {
 
       case UndoableTypes.UNDO:
+        return undoNStates(state, action.payload)
+
       case UndoableTypes.REDO:
-        return travel(state, action)
+        return redoNStates(state, action.payload)
+
+      case UndoableTypes.GROUP:
+        return updateHistory(state, action.payload.reduce(reducer, state.present), action.payload)
 
       default:
-        const newState = reducer(state.present, action)
-
-        if (comparator(state.present, newState)) {
-          return state
-        }
-
-        return updateHistory(state, newState, action)
+        return updateHistory(state, reducer(state.present, action), action)
 
     }
 

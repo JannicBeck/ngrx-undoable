@@ -2,8 +2,9 @@ import { Action } from './interfaces/public'
 
 
 export enum UndoableTypes {
-  UNDO = 'redux-undoable/UNDO',
-  REDO = 'redux-undoable/REDO',
+  UNDO  = 'redux-undoable/UNDO',
+  REDO  = 'redux-undoable/REDO',
+  GROUP = 'redux-undaoble/GROUP'
 }
 
 
@@ -29,30 +30,45 @@ export interface RedoAction extends Action {
 }
 
 
+/**
+ * Group actions.
+ * @interface
+ * @member {Action[]} payload - An array of actions which will be grouped into one
+ */
+export interface GroupAction<A extends Action> extends Action {
+  type: UndoableTypes.GROUP
+  payload?: A[]
+}
+
 /*
  * action creators
  */
 
 export const redo = (nStates = 1): RedoAction => {
-
   return {
     type    : UndoableTypes.REDO,
     payload : nStates
   }
-  
 }
 
 
 export const undo = (nStates = 1): UndoAction => {
-
   return {
     type    : UndoableTypes.UNDO,
     payload : nStates
   }
-
 }
 
 
-export type UndoableAction
+export const group = <A extends Action>(...actions: A[]): GroupAction<A> => {
+  return {
+    type    : UndoableTypes.GROUP,
+    payload : actions
+  }
+}
+
+
+export type UndoableAction<A extends Action>
   = UndoAction
   | RedoAction
+  | GroupAction<A>

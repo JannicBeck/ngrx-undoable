@@ -1,17 +1,28 @@
 import {
   Action,
   UndoableState,
-  Reducer
+  Reducer,
+  Comparator
 } from './public'
 
 
-export interface UpdateHistory {
-  <S, A extends Action | Action>(undoable: UndoableState<S, A | Action>, newState: S, newAction: A): UndoableState<S, A | Action>
+export interface AddToHistory {
+  <S, A extends Action | Action>(undoable: UndoableState<S, A | Action>, newPresent: S, ...actions: A[]): UndoableState<S, A | Action>
+}
+
+
+export interface CreateUpdateHistory {
+  <S, A extends Action | Action>(comparator: Comparator<S>): UpdateHistory<S, A>
+}
+
+
+export interface UpdateHistory<S, A extends Action | Action> {
+  (undoable: UndoableState<S, A | Action>, newPresent: S, action: A): UndoableState<S, A | Action>
 }
 
 
 export interface TravelOnce<S, A extends Action | Action> {
-  (state: UndoableState<S, A | Action>): UndoableState<S, A | Action>
+  (state: UndoableState<S, A | Action>, nStates: number): UndoableState<S, A | Action>
 }
 
 
@@ -40,11 +51,11 @@ export interface CreateTravelNStates {
 }
 
 export interface GetPresentState<S, A extends Action | Action> {
-  (actions: A[]): S
+  (actions: (A | A[])[]): S
 }
 
 export interface CreateGetPresentState {
-  <S, A extends Action | Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I): GetPresentState<S, A | Action>
+  <S, A extends Action | Action>(reducer: Reducer<S, A | Action>): GetPresentState<S, A | Action>
 }
 
 
@@ -65,9 +76,4 @@ export interface Travel<S, A extends Action | Action> {
 
 export interface CreateTravel {
   <S, A extends Action | Action>(undoNStates: TravelNStates<S, A | Action>, redoNStates: TravelNStates<S, A | Action>): Travel<S, A | Action>
-}
-
-
-export interface GetTravel {
-  <S, A extends Action | Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I): Travel<S, A | Action>
 }

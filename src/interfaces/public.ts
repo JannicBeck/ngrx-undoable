@@ -53,7 +53,7 @@ export interface UndoableState<S, A extends Action> {
  * 
  */
 export interface Undoable {
-  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction: I | Action, comparator?: Comparator<S>): UndoableReducer<S, A>
+  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction?: I | Action, comparator?: Comparator<S>): UndoableReducer<S, A>
 }
 
 export interface UndoableReducer<S, A extends Action> {

@@ -170,6 +170,29 @@ describe('The undoable.reducer', () => {
 
     })
 
+    it('should undo multiple greater than past', () => {
+      
+      // 0, 1, ... , 7, 8, 7
+      const initialState = {
+        past    : [ init(), increment(), increment(), increment(), increment(), increment(), increment(), increment() ],
+        present : 7,
+        future  : [ increment() ]
+      }
+      
+      const undoAction = undo(100)
+
+      // 0, 1, ... , 7, 8, 0
+      const expectedState = {
+        past    : [ init() ],
+        present : 0,
+        future  : [ increment(), increment(), increment(), increment(), increment(), increment(), increment(), increment() ]
+      }
+
+      const actualState = reducer(initialState, undoAction)
+      expect(actualState).toEqual(expectedState)
+
+    })
+
   }) // ==== undo multiple ====
 
 

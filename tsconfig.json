@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "system",
     "removeComments": true,
+    "noImplicitAny": true,
     "preserveConstEnums": true,
     "outFile": "../../built/local/tsc.js",
     "sourceMap": true

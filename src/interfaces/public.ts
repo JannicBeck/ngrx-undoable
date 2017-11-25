@@ -53,7 +53,12 @@ export interface UndoableState<S, A extends Action> {
  * 
  */
 export interface Undoable {
-  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction?: I | Action, comparator?: Comparator<S>): UndoableReducer<S, A>
+  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction?: I | Action, comparator?: Comparator<S>): UndoableMap<S, A>
+}
+
+export interface UndoableMap<S, A extends Action> {
+  reducer   : UndoableReducer<S, A>
+  selectors : Selectors<S, A>
 }
 
 export interface UndoableReducer<S, A extends Action> {
@@ -72,3 +77,9 @@ export interface UndoableReducer<S, A extends Action> {
  * 
  */
 export type Comparator<S> = (s1: S, s2: S) => boolean
+
+export interface Selectors<S, A extends Action> {
+    getPresentState  : (state: UndoableState<S, A>) => S
+    getPastStates    : (state: UndoableState<S, A>) => S[]
+    getFutureStates  : (state: UndoableState<S, A>) => S[]
+}

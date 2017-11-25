@@ -10,8 +10,8 @@
         Clicked: <span id="value">0</span> times
         <button id="increment">+</button>
         <button id="decrement">-</button>
-        <button id="incrementIfOdd">Increment if odd</button>
-        <button id="incrementAsync">Increment async</button>
+        <button id="undo">Undo</button>
+        <button id="redo">Redo</button>
       </p>
     </div>
     <script>
@@ -50,17 +50,17 @@
           store.dispatch({ type: 'DECREMENT' })
         })
 
-      document.getElementById('incrementIfOdd')
+      document.getElementById('undo')
         .addEventListener('click', function () {
           if (store.getState() % 2 !== 0) {
-            store.dispatch({ type: 'INCREMENT' })
+            store.dispatch({ type: 'redux-undoable/UNDO' })
           }
         })
 
-      document.getElementById('incrementAsync')
+      document.getElementById('redo')
         .addEventListener('click', function () {
           setTimeout(function () {
-            store.dispatch({ type: 'INCREMENT' })
+            store.dispatch({ type: 'redux-undoable/REDO' })
           }, 1000)
         })
     </script>

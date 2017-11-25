@@ -1,57 +1,24 @@
 import { undoable } from '../src/undoable.reducer'
-import { UndoAction, RedoAction, UndoableTypes, undo, redo, group } from '../src/undoable.action'
+
 import { Action } from '../src/interfaces/public'
 
-enum Count {
-  INCREMENT = 'INCREMENT',
-  DECREMENT = 'DECREMENT',
-  INIT      = 'INIT'
-}
+import {
+  UndoAction,
+  RedoAction,
+  UndoableTypes,
+  undo,
+  redo,
+  group
+} from '../src/undoable.action'
 
-interface Init extends Action {
-  type: Count.INIT
-}
+import {
+  counter,
+  init,
+  increment,
+  decrement
+} from '../counter';
 
-interface Increment extends Action {
-  type: Count.INCREMENT
-}
-
-interface Decrement extends Action {
-  type: Count.DECREMENT
-}
-
-const increment = (): Increment => {
-  return { type: Count.INCREMENT }
-}
-
-const decrement = (): Decrement => {
-  return { type: Count.DECREMENT }
-}
-
-const init = (): Init => {
-  return { type: Count.INIT }
-}
-
-type CounterAction = Init | Increment | Decrement
-
-const counter = (state = 0, action: CounterAction) => {
-
-  switch (action.type) {
-
-    case Count.INCREMENT:
-      return state + 1
-
-    case Count.DECREMENT:
-      return state - 1
-
-    default:
-      return state
-
-  }
-
-}
-
-const reducer = undoable(counter, init())
+const reducer = undoable(counter, init()).reducer
 
 describe('The undoable.reducer', () => {
 
@@ -479,7 +446,7 @@ describe('The undoable.reducer', () => {
 
       // comparator which always returns that states are equal,
       // so no action should be added to the history
-      const reducerWithComparator = undoable(counter, init(), (s1, s2) => true)
+      const reducerWithComparator = undoable(counter, init(), (s1, s2) => true).reducer
       
       const initialState = {
         past    : [ init() ],

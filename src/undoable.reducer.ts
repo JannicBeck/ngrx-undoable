@@ -23,7 +23,7 @@ const latestFrom    = <T> (x: T[]) => x[ x.length - 1 ]
 const withoutLatest = <T> (x: T[]) => x.slice(0, x.length -1)
 const withoutOldest = <T> (x: T[]) => x.slice(1, x.length)
 const addTo         = <T> (x: (T | T[])[], y: T[] | T) => y ? [ ...x, y ] : x
-const flatten       = <T> (x: T[]) => [].concat(...x)
+const flatten       = <T> (x: (T | T[])[]) => [].concat(...x) as T[]
 
 
 // since the oldest past is the init action we never want to remove it from the past
@@ -107,9 +107,12 @@ const updateHistory: UpdateHistory = (state, newPresent, action, comparator) => 
 const createSelectors: CreateSelectors = reducer => {
 
   return {
-    getPresentState : state => state.present,
-    getPastStates   : state => state.past.slice(1, state.past.length).map((a, i) => calculateState(reducer, state.past.slice(0, i + 1))),
-    getFutureStates : state => state.future.map((a, i) => calculateState(reducer, state.past.concat(state.future.slice(0, i))))
+    getPastStates    : state => state.past.slice(1, state.past.length).map((a, i) => calculateState(reducer, state.past.slice(0, i + 1))),
+    getPresentState  : state => state.present,
+    getFutureStates  : state => state.future.map((a, i) => calculateState(reducer, state.past.concat(state.future.slice(0, i)))),
+    getPastActions   : state => flatten(state.past).slice(1, state.past.length),
+    getPresentAction : state => flatten(state.past)[0],
+    getFutureActions : state => flatten(state.future)
   }
 
 }

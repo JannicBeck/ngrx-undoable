@@ -1,10 +1,4 @@
-/**
- * A simple Redux Action
- */
-export interface Action {
-  type      : string
-  payload?  : any
-}
+import { Action } from './src/interfaces/public';
 
 enum Count {
   INCREMENT = 'INCREMENT',

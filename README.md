@@ -16,6 +16,7 @@ npm install --save redux-undoable
 ```
 yarn add redux-undoable --save
 ```
+
 ## Usage
 ```js
 import { undoable } from 'redux-undoable'
@@ -36,7 +37,8 @@ Every action you dispatch will be added to the past.
 Lets look at the popular [counter](https://github.com/reactjs/redux/tree/master/examples/counter) example.
 
 ```js
-const undoableCounter = undoable(counter)
+const undoableCounter = undoable(counter).reducer
+const undoableSelectors = undoable(counter).selectors
 
 const initialState = undoableCounter(undefined, { type: 'INIT_UNDOABLE_COUNTER' })
 
@@ -61,6 +63,49 @@ const state2 = undoableCounter(state1, { type: 'DECREMENT' })
   present : 0
   future  : [ ]
 }
+```
+
+### Selectors
+`const undoableSelectors = undoable(counter).selectors`
+
+These are your selectors to query the undoable state, use them!!
+Do *not* just select the state via state.past or state.present!
+
+The selectors are the contract between this library and your code they won't change and guarantee
+that I won't break your app when adding features to this library.
+
+#### State Selectors
+```js
+undoableSelectors.getPastStates(state)
+```
+An Array of State objects that represent the past in the order: [oldest, latest]
+```js
+undoableSelectors.getPresentState(state)
+```
+The current State
+```js
+undoableSelectors.getFutureStates(state)
+```
+An Array of State objects that represent the future in the order: [latest, oldest]
+
+#### Action Selectors
+```js
+undoableSelectors.getPastActions(state)
+```
+An Array of Action objects that represent the past in the order: [oldest, latest]
+```js
+undoableSelectors.getPresentAction(state)
+```
+getPresentAction The current Action
+```js
+undoableSelectors.getFutureActions(state)
+```
+An Array of Action objects that represent the future in the order: [latest, oldest]
+
+#### Custom Selectors
+Of course you can create your own selectors, but make sure you use the existing ones as an input for your new ones f.e. using [reselect](https://github.com/reactjs/reselect):
+```js
+createSelector(getPastStates, pastStates => pastStates.filter(x => x > 1))
 ```
 
 ### Undo
@@ -172,7 +217,7 @@ const undoableCounter = undoable(counter, { type: 'MY_CUSTOM_INIT' })
 }
 ```
 
-### comparator
+### Comparator
 The third argument of `undoable` is a comparator function which compares two states in order to detect state changes.
 
 - If it evaluates to true, the action history is not updated and the state is returned.

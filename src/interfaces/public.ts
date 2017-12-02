@@ -94,10 +94,10 @@ export type Comparator<S> = (s1: S, s2: S) => boolean
  * 
  */
 export interface Selectors<S, A extends Action> {
-    getPastStates    : (state: UndoableState<S, A>) => S[]
-    getPresentState  : (state: UndoableState<S, A>) => S
-    getFutureStates  : (state: UndoableState<S, A>) => S[]
-    getPastActions   : (state: UndoableState<S, A>) => A[]
-    getPresentAction : (state: UndoableState<S, A>) => A
-    getFutureActions : (state: UndoableState<S, A>) => A[]
+  getPastStates    : (state: UndoableState<S, A>) => S[]
+  getPresentState  : (state: UndoableState<S, A>) => S
+  getFutureStates  : (state: UndoableState<S, A>) => S[]
+  getPastActions   : (state: UndoableState<S, A>) => A[]
+  getLatestAction  : (state: UndoableState<S, A>) => A
+  getFutureActions : (state: UndoableState<S, A>) => A[]
 }

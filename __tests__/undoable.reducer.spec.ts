@@ -1,11 +1,6 @@
 import { undoable } from '../src/undoable.reducer'
 
-import { Action } from '../src/interfaces/public'
-
 import {
-  UndoAction,
-  RedoAction,
-  UndoableTypes,
   undo,
   redo,
   group
@@ -22,6 +17,7 @@ const reducer = undoable(counter, init()).reducer
 
 describe('The undoable.reducer', () => {
 
+
   describe('initial state', () => {
 
     it('should produce an initial state on undefined action type', () => {
@@ -30,7 +26,6 @@ describe('The undoable.reducer', () => {
 
       const initAction = init()
 
-      // 0
       const expectedState = {
         past    : [ initAction ],
         present : 0,
@@ -45,7 +40,8 @@ describe('The undoable.reducer', () => {
   }) // ==== initial state ====
 
 
-  describe('forward', () => {
+
+  describe('forwarding actions', () => {
 
     it('should call the given reducer', () => {
 
@@ -53,7 +49,6 @@ describe('The undoable.reducer', () => {
 
       const incrementAction = increment()
 
-      // 0, 1
       const expectedState = {
         past    : [ init(), incrementAction ],
         present : 1,
@@ -70,26 +65,51 @@ describe('The undoable.reducer', () => {
       const initialState = undefined
       const decrementAction = decrement()
 
-      // 0, -1
       const expectedState = {
         past    : [ init(), decrementAction ],
         present : -1,
         future  : [ ]
       }
-      
+
       const actualState = reducer(initialState, decrementAction)
       expect(actualState).toEqual(expectedState)
 
     })
 
-  }) // ==== forward ====
+    it('should wipe the future when an action is forwarded', () => {
+
+      const initialState = {
+        past    : [ init(), increment() ],
+        present : 1,
+        future  : [ increment(), increment(), increment() ]
+      }
+
+      const actualState1 = reducer(initialState, increment())
+
+      expect(actualState1).toEqual({
+        past    : [ init(), increment(), increment() ],
+        present : 2,
+        future  : [ ]
+      })
+
+      const actualState2 = reducer(actualState1, decrement())
+
+      expect(actualState2).toEqual({
+        past    : [ init(), increment(), increment(), decrement() ],
+        present : 1,
+        future  : [ ]
+      })
+
+    })
+
+  }) // ==== forwarding actions ====
+
 
 
   describe('undo', () => {
 
     it('should undo to the previous state', () => {
 
-      // 0, 1, 2
       const initialState = {
         past    : [ init(), increment(), increment() ],
         present : 2,
@@ -98,7 +118,6 @@ describe('The undoable.reducer', () => {
 
       const undoAction = undo()
 
-      // 0, 1, 2, 1
       const expectedState = {
         past    : [ init(), increment() ],
         present : 1,
@@ -112,20 +131,19 @@ describe('The undoable.reducer', () => {
   }) // ==== undo ====
 
 
+
   describe('undo multiple', () => {
 
     it('should undo multiple to a past state', () => {
 
-      // 0, 1, ... , 7, 8, 7
       const initialState = {
         past    : [ init(), increment(), increment(), increment(), increment(), increment(), increment(), increment() ],
         present : 7,
         future  : [ increment() ]
       }
-      
+
       const undoAction = undo(4)
 
-      // 0, 1, ... , 7, 8, 7, 3
       const expectedState = {
         past    : [ init(), increment(), increment(), increment() ],
         present : 3,
@@ -138,17 +156,15 @@ describe('The undoable.reducer', () => {
     })
 
     it('should undo multiple greater than past', () => {
-      
-      // 0, 1, ... , 7, 8, 7
+
       const initialState = {
         past    : [ init(), increment(), increment(), increment(), increment(), increment(), increment(), increment() ],
         present : 7,
         future  : [ increment() ]
       }
-      
+
       const undoAction = undo(100)
 
-      // 0, 1, ... , 7, 8, 0
       const expectedState = {
         past    : [ init() ],
         present : 0,
@@ -163,11 +179,11 @@ describe('The undoable.reducer', () => {
   }) // ==== undo multiple ====
 
 
+
   describe('redo', () => {
 
     it('should redo to the future state', () => {
 
-      // 0, 1, 2, 3, 1
       const initialState = {
         past    : [ init(), increment() ],
         present : 1,
@@ -176,7 +192,6 @@ describe('The undoable.reducer', () => {
 
       const action = redo()
 
-      // 0, 1, 2, 3, 1, 2
       const expectedState = {
         past    : [ init(), increment(), increment() ],
         present : 2,
@@ -191,20 +206,19 @@ describe('The undoable.reducer', () => {
   }) // ==== redo ====
 
 
+
   describe('redo multiple', () => {
 
     it('should redo multiple to a future state', () => {
 
-      // 0, 1, 2, 3, 4, 5, 6, 7, 1
       const initialState = {
         past    : [ init(), increment() ],
         present : 1,
         future  : [ increment(), increment(), increment(), increment(), increment(), increment() ]
       }
-      
+
       const action = redo(4)
 
-      // 0, 1, 2, 3, 4, 5, 6, 7, 1
       const expectedState = {
         past    : [ init(), increment(), increment(), increment(), increment(), increment() ],
         present : 5,
@@ -218,11 +232,11 @@ describe('The undoable.reducer', () => {
   }) // ==== redo multiple ====
 
 
+
   describe('undo sequence', () => {
 
     it('should undo a sequence of states to a previous state', () => {
 
-      // 0, 1, 2, 3
       const initialState = {
         past    : [ init(), increment(), increment(), increment() ],
         present : 3,
@@ -261,6 +275,7 @@ describe('The undoable.reducer', () => {
     })
 
   }) // ==== undo sequence ====
+
 
 
   describe('redo sequence', () => {
@@ -306,6 +321,7 @@ describe('The undoable.reducer', () => {
   }) // ==== redo sequence ====
 
 
+
   describe('undo/redo sequence', () => {
 
     it('should undo and redo a sequence of states to a correct state', () => {
@@ -337,37 +353,9 @@ describe('The undoable.reducer', () => {
       expect(actualState4).toEqual(actualState2)
 
     })
+
   }) // ==== undo/redo sequence ====
 
-
-  describe('forward actions', () => {
-
-    it('should forward actions to a correct state', () => {
-
-      const initialState = {
-        past    : [ init(), increment() ],
-        present : 1,
-        future  : [ increment(), increment(), increment() ]
-      }
-
-      const actualState1 = reducer(initialState, increment())
-
-      expect(actualState1).toEqual({
-        past    : [ init(), increment(), increment() ],
-        present : 2,
-        future  : [ ]
-      })
-
-      const actualState2 = reducer(actualState1, decrement())
-
-      expect(actualState2).toEqual({
-        past    : [ init(), increment(), increment(), decrement() ],
-        present : 1,
-        future  : [ ]
-      })
-
-    })
-  }) // ==== forward actions ====
 
 
   describe('group actions', () => {
@@ -401,7 +389,7 @@ describe('The undoable.reducer', () => {
     })
 
     it('should redo grouped actions', () => {
-      
+
       const initialState = {
         past    : [ init() ],
         present : 0,
@@ -424,9 +412,10 @@ describe('The undoable.reducer', () => {
   }) // ==== group actions ====
 
 
+
   describe('comparator', () => {
 
-    it('default comparator should not add action to history if it does not change state', () => {
+    it('should not add an action to history if it does not change state', () => {
 
       const initialState = {
         past    : [ init(), increment() ],
@@ -442,26 +431,26 @@ describe('The undoable.reducer', () => {
 
     })
 
-    it('provided comparator should be used', () => {
+    it('should use the provided comparator', () => {
 
       // comparator which always returns that states are equal,
       // so no action should be added to the history
       const reducerWithComparator = undoable(counter, init(), (s1, s2) => true).reducer
-      
+
       const initialState = {
         past    : [ init() ],
         present : 0,
         future  : [ ]
       }
 
-      // init will not change state
       const action = increment()
 
       const actualState = reducerWithComparator(initialState, action)
       expect(actualState).toEqual(initialState)
 
     })
-  
+
   }) // ==== comparator ====
+
 
 })

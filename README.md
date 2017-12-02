@@ -77,30 +77,45 @@ that I won't break your app when adding features to this library.
 #### State Selectors
 ```js
 undoableSelectors.getPastStates(state)
+
+// An Array of State objects that represent the past in the order: [oldest, latest]
+[ 0, 1 ]
 ```
-An Array of State objects that represent the past in the order: [oldest, latest]
+
 ```js
 undoableSelectors.getPresentState(state)
+
+// The current State
+2
 ```
-The current State
+
 ```js
 undoableSelectors.getFutureStates(state)
+
+// An Array of State objects that represent the future in the order: [latest, oldest]
+[ 3, 4 ]
 ```
-An Array of State objects that represent the future in the order: [latest, oldest]
 
 #### Action Selectors
 ```js
 undoableSelectors.getPastActions(state)
+
+// An Array of Action objects that represent the past in the order: [oldest, latest]
+[ { type: 'INIT' }, { type: 'INCREMENT' } ]
 ```
-An Array of Action objects that represent the past in the order: [oldest, latest]
 ```js
-undoableSelectors.getPresentAction(state)
+undoableSelectors.getLatestAction(state)
+
+// The latest Action
+{ type: 'INCREMENT' }
 ```
-getPresentAction The current Action
+
 ```js
 undoableSelectors.getFutureActions(state)
+
+// An Array of Action objects that represent the future in the order: [latest, oldest]
+[ { type: 'INCREMENT' }, { type: 'INCREMENT' } ]
 ```
-An Array of Action objects that represent the future in the order: [latest, oldest]
 
 #### Custom Selectors
 Of course you can create your own selectors, but make sure you use the existing ones as an input for your new ones f.e. using [reselect](https://github.com/reactjs/reselect):

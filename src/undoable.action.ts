@@ -14,7 +14,7 @@ export enum UndoableTypes {
  * @member {number} payload - The number of steps to undo (must be positive and less than the length of the past)
  */
 export interface UndoAction extends Action {
-  type: UndoableTypes.UNDO
+  readonly type: UndoableTypes.UNDO
   payload?: number
 }
 
@@ -25,7 +25,7 @@ export interface UndoAction extends Action {
  * @member {number} payload - The number of steps to redo (must be positive and less than the length of the future)
  */
 export interface RedoAction extends Action {
-  type: UndoableTypes.REDO
+  readonly type: UndoableTypes.REDO
   payload?: number
 }
 
@@ -36,12 +36,12 @@ export interface RedoAction extends Action {
  * @member {Action[]} payload - An array of actions which will be grouped into one
  */
 export interface GroupAction<A extends Action> extends Action {
-  type: UndoableTypes.GROUP
+  readonly type: UndoableTypes.GROUP
   payload?: A[]
 }
 
 /*
- * action creators
+ * Action Creators
  */
 
 export const redo = (nStates = 1): RedoAction => {

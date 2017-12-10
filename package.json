@@ -5,6 +5,10 @@
   "repository": "git@gitlab.uni-koblenz.de:jannic/ngrx-undoable.git",
   "author": "jannicbeck <jannicbeck@gmail.com>",
   "license": "MIT",
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "clean": "rimraf dist coverage",
     "build": "parcel build src/index.ts",

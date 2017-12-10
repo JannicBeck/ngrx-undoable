@@ -20,7 +20,7 @@ yarn add ngrx-undoable --save
 ## Usage
 ```js
 import { undoable } from 'ngrx-undoable'
-const undoableReducer = undoable(reducer, initAction)
+const undoableReducer = undoable(reducer, initAction).reducer
 ```
 `reducer` is the reducer which you want to add undo and redo functionality to and `initAction` is the action which initializes your `reducer`.
 

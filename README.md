@@ -1,25 +1,25 @@
-# <img src='https://github.com/JannicBeck/redux-undoable/blob/master/logo/logo.png?raw=true' height='30'> Redux-Undoable
+# <img src='https://github.com/JannicBeck/ngrx-undoable/blob/master/logo/logo.png?raw=true' height='30'> ngrx-undoable
 
 [Redux](https://github.com/reactjs/redux)/[Ngrx](https://github.com/ngrx) implementation of [Undo/Redo](http://redux.js.org/docs/recipes/ImplementingUndoHistory.html) based on Actions instead of States
 
-![build status](https://circleci.com/gh/JannicBeck/redux-undoable.svg?style=shield&circle-token=cc8e771451b141cec76a278794a6c9077e58dfc9)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/JannicBeck/redux-undoable/blob/master/LICENSE)
+![build status](https://circleci.com/gh/JannicBeck/ngrx-undoable.svg?style=shield&circle-token=cc8e771451b141cec76a278794a6c9077e58dfc9)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/JannicBeck/ngrx-undoable/blob/master/LICENSE)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-Typescript-blue.svg)](https://www.typescriptlang.org/)
 
 ## Installation
 ### npm
 ```
-npm install --save redux-undoable
+npm install --save ngrx-undoable
 ```
 
 ### yarn
 ```
-yarn add redux-undoable --save
+yarn add ngrx-undoable --save
 ```
 
 ## Usage
 ```js
-import { undoable } from 'redux-undoable'
+import { undoable } from 'ngrx-undoable'
 const undoableReducer = undoable(reducer, initAction)
 ```
 `reducer` is the reducer which you want to add undo and redo functionality to and `initAction` is the action which initializes your `reducer`.
@@ -127,12 +127,12 @@ createSelector(getPastStates, pastStates => pastStates.filter(x => x > 1))
 There are two recommended ways to create an undo action:
 1. Use the action creator
 ```js
-import { undo } from 'redux-undoable'
+import { undo } from 'ngrx-undoable'
 const undoAction = undo()
 ```
 2. Use the UndoableTypes
 ```js
-import { UndoableTypes } from 'redux-undoable'
+import { UndoableTypes } from 'ngrx-undoable'
 const undoAction = { type: UndoableTypes.UNDO }
 ```
 
@@ -168,7 +168,7 @@ undoableCounter(initialState, undo(2))
 ### Redo
 Redo works pretty much analogous to undo:
 ```js
-import { redo } from 'redux-undoable'
+import { redo } from 'ngrx-undoable'
 
 const initialState =
 {
@@ -189,11 +189,11 @@ undoableCounter(initialState, redo())
 ### Group
 The group action is a sepcial undoable action. It will group the actions given in the payload, and store them as an array inside the past. Undo will then undo them as one single step.
 ```js
-import { group } from 'redux-undoable'
+import { group } from 'ngrx-undoable'
 const incrementTwice = group({ type: 'INCREMENT' }, { type: 'INCREMENT' })
 ```
 ```js
-import { UndoableTypes } from 'redux-undoable'
+import { UndoableTypes } from 'ngrx-undoable'
 const incrementTwice = { type: UndoableTypes.GROUP, payload: [ { type: 'INCREMENT' }, { type: 'INCREMENT' } ] }
 ```
 

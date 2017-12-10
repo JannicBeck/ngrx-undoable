@@ -16,8 +16,8 @@
     "build:umd:min": "NODE_ENV=production rollup -c -i src/index.ts -o dist/redux-undoable.min.js",
     "build": "yarn build:commonjs && yarn build:esnext && yarn build:umd && yarn build:umd:min",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:watch": "yarn test -- --watch",
+    "test:cov": "yarn test -- --coverage"
   },
   "keywords": [
     "redux",
@@ -49,6 +49,6 @@
     "transform": {
       "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testRegex": "/__tests__/.*\\.(ts|tsx|js)$"
+    "testRegex": "/test/.*\\.test.(ts|tsx|js)$"
   }
 }

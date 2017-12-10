@@ -118,10 +118,10 @@ const createSelectors: CreateSelectors = reducer => {
   return {
     getPastStates    : state => state.past.slice(1, state.past.length).map((a, i) => calculateState(reducer, state.past.slice(0, i + 1))),
     getPresentState  : state => state.present,
-    getFutureStates  : state => state.future.map((a, i) => calculateState(reducer, state.past.concat(state.future.slice(0, i)))).reverse(),
-    getPastActions   : state => flatten(state.past).slice(1, state.past.length),
+    getFutureStates  : state => [...state.future].reverse().map((a, i) => calculateState(reducer, state.past.concat([...state.future].reverse().slice(0, i + 1)))),
+    getPastActions   : state => flatten(state.past),
     getLatestAction  : state => flatten(state.past)[0],
-    getFutureActions : state => flatten(state.future)
+    getFutureActions : state => flatten([...state.future].reverse())
   }
 
 }

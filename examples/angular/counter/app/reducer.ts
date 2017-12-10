@@ -1,7 +1,7 @@
-import { counter, CounterAction } from '../../../../../counter';
 import { undoable } from '../../../../../src/undoable.reducer';
 import { createSelector } from '@ngrx/store';
 import { Undoable, UndoableState } from '../../../../../src/interfaces/public';
+import { CounterAction, counter } from './counter';
 
 export interface Root {
   counter: UndoableState<number, CounterAction>

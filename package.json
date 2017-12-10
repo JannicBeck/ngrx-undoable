@@ -1,23 +1,16 @@
 {
   "name": "ngrx-undoable",
   "version": "1.0.0",
-  "main": "lib/index.js",
+  "main": "src/index.ts",
   "repository": "git@gitlab.uni-koblenz.de:jannic/ngrx-undoable.git",
   "author": "jannicbeck <jannicbeck@gmail.com>",
   "license": "MIT",
-  "module": "es/index.js",
-  "jsnext:main": "es/index.js",
   "scripts": {
-    "clean": "rimraf lib dist esnext coverage",
-    "compile": "tsc src/undoable.reducer.ts",
-    "build:commonjs": "tsc src/index.ts --outDir lib --module commonjs",
-    "build:esnext": "tsc src/index.ts --outDir esnext --module esnext",
-    "build:umd": "NODE_ENV=development rollup -c -i src/index.ts -o dist/redux-undoable.js",
-    "build:umd:min": "NODE_ENV=production rollup -c -i src/index.ts -o dist/redux-undoable.min.js",
-    "build": "yarn build:commonjs && yarn build:esnext && yarn build:umd && yarn build:umd:min",
+    "clean": "rimraf dist coverage",
+    "build": "parcel build src/index.ts",
     "test": "jest",
-    "test:watch": "yarn test -- --watch",
-    "test:cov": "yarn test -- --coverage"
+    "test:watch": "npm test -- --watch",
+    "test:cov": "npm test -- --coverage"
   },
   "keywords": [
     "redux",
@@ -32,18 +25,15 @@
     "angular2-undo"
   ],
   "devDependencies": {
-    "@types/jest": "^21.1.6",
+    "@types/jest": "^21.1.8",
     "jest": "^21.2.1",
-    "rollup": "^0.50.0",
-    "rollup-plugin-typescript": "^0.8.1",
-    "rollup-plugin-uglify": "^2.0.1",
+    "parcel-bundler": "^1.1.0",
     "ts-jest": "^21.1.0",
-    "typescript": "^2.5.2"
+    "typescript": "^2.6.2"
   },
   "jest": {
     "moduleFileExtensions": [
       "ts",
-      "tsx",
       "js"
     ],
     "transform": {

@@ -1,4 +1,4 @@
-import { undoable } from '../redux-undoable';
+import { undoable } from 'ngrx-undoable';
 import { counter } from './counter';
 
 export default undoable(counter).reducer

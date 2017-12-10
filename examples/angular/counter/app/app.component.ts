@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Store } from '@ngrx/store';
-import { increment, decrement, CounterAction } from '../../../../../counter';
+import { increment, decrement, CounterAction } from './counter';
 import { undo, redo, group } from '../../../../../src/undoable.action';
 import { UndoableState } from '../../../../../src/interfaces/public';
 import { getPresentState, Root, getPastStates, getFutureStates } from './reducer';

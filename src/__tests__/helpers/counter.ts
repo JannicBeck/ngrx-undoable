@@ -1,4 +1,4 @@
-import { Action } from './src/interfaces/public';
+import { Action } from '../../interfaces/public';
 
 enum Count {
   INCREMENT = 'INCREMENT',

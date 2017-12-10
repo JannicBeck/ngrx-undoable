@@ -8,7 +8,7 @@
 ## Installation
 ### npm
 ```
-npm install --save ngrx-undoable
+npm install ngrx-undoable --save
 ```
 
 ### yarn

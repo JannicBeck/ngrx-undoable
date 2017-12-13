@@ -1,7 +1,7 @@
 {
   "name": "ngrx-undoable",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "index.ts",
   "repository": "git@gitlab.uni-koblenz.de:jannic/ngrx-undoable.git",
   "author": "jannicbeck <jannicbeck@gmail.com>",
   "license": "MIT",
@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "clean": "rimraf dist coverage",
-    "build": "parcel build src/index.ts",
+    "build": "parcel build index.ts",
     "test": "jest",
     "test:watch": "npm test -- --watch",
     "test:cov": "npm test -- --coverage"

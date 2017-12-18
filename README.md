@@ -248,8 +248,8 @@ undoable(counter, initAction, (s1, s2) => false)
 It really just boils down to if your state is fat and your actions are thin or your state is thin and your actions are fat.
 
 - Use [redux-undo](https://github.com/omnidan/redux-undo) if your state is thin and your actions are fat.
-- Use this library if your state is fat and your actions are thin and you want maximum performance for that.
-- Use [ngrx-undoable](https://github.com/JannicBeck/ngrx-undoable) if you want something in between with a nicer API than this library. (only present state is stored)
+- Use [undox](https://github.com/JannicBeck/undox) if your state is fat and your actions are thin and you want maximum performance for that.
+- Use this library if you want something in between with a nicer API than undox. (only present state is stored)
 
 The most popular and used library to add undo/redo functionality to redux is without a doubt [redux-undo](https://github.com/omnidan/redux-undo).
 

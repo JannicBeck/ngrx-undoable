@@ -2,9 +2,9 @@ import { Action } from './interfaces/public'
 
 
 export enum UndoableTypes {
-  UNDO  = 'redux-undoable/UNDO',
-  REDO  = 'redux-undoable/REDO',
-  GROUP = 'redux-undaoble/GROUP'
+  UNDO  = 'ngrx-undoable/UNDO',
+  REDO  = 'ngrx-undoable/REDO',
+  GROUP = 'ngrx-undaoble/GROUP'
 }
 
 

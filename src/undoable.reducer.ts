@@ -163,7 +163,7 @@ const createUndoableReducer: CreateUndoableReducer = (reducer, initAction, compa
 
 
 
-export const undoable: Undoable = (reducer, initAction = { type: 'INIT' } as Action, comparator = (s1, s2) => s1 === s2) => {
+export const undoable: Undoable = (reducer, initAction = { type: 'ngrx-undoable/INIT' } as Action, comparator = (s1, s2) => s1 === s2) => {
 
   return {
     reducer   : createUndoableReducer(reducer, initAction, comparator),

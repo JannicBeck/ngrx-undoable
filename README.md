@@ -243,6 +243,31 @@ The third argument of `undoable` is a comparator function which compares two sta
 undoable(counter, initAction, (s1, s2) => false)
 ```
 
+## Motivation
+**TL:DR**
+It really just boils down to if your state is fat and your actions are thin or your state is thin and your actions are fat.
+
+- Use [redux-undo](https://github.com/omnidan/redux-undo) if your state is thin and your actions are fat.
+- Use this library if your state is fat and your actions are thin and you want maximum performance for that.
+- Use [ngrx-undoable](https://github.com/JannicBeck/ngrx-undoable) if you want something in between with a nicer API than this library. (only present state is stored)
+
+The most popular and used library to add undo/redo functionality to redux is without a doubt [redux-undo](https://github.com/omnidan/redux-undo).
+
+It stores the whole state instead of actions. While this is great if we got a lean state and fat actions, it does not scale well if our state tree grows.
+
+This library instead only stores actions, which results in some nice advantages, but also some disadvantages depending on your use case.
+
+### Advantages
+- Takes up less space inside localStorage for thin actions and fat states
+- Better performance for thin actions and fat states
+- A complete history for free!
+- Type safety (completely written in TypeScript)
+- Smaller in size than redux-undo
+
+### Disadvantages
+- Takes up more space inside localStorage for fat actions and thin states
+- Worse performance for fat actions and thin states
+- Less feature rich than redux-undo
 
 
 

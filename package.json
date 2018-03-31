@@ -1,6 +1,6 @@
 {
   "name": "ngrx-undoable",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
   "license": "MIT",
   "files": [
     "dist",
-    "src"
+    "src",
+    "index.ts"
   ],
   "scripts": {
     "clean": "rimraf dist coverage",

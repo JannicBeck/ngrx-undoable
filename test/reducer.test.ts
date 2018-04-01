@@ -191,7 +191,7 @@ describe('The undoable.reducer', () => {
       const initialState: UndoableCounter = {
         past    : [ init(), increment() ],
         present : 1,
-        future  : [ decrement(), increment() ]
+        future  : [ increment(), decrement() ]
       }
 
       const action = redo()

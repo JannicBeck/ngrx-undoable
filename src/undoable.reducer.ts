@@ -3,7 +3,6 @@ import {
   CalculateState,
   TravelNStates,
   CreateTravelOne,
-  AddToHistory,
   UpdateHistory,
   CreateSelectors,
   CreateUndoableReducer
@@ -12,17 +11,13 @@ import {
 import {
   Undoable,
   Action,
-  UndoableReducer
+  Reducer,
+  UndoableReducer,
+  UndoableState
 } from './interfaces/public';
 
 import { UndoableTypes } from './undoable.action';
 
-
-// abstract from the order of future and past
-const latestFrom = <T> (x: T[]) => x[ x.length - 1 ]
-const withoutLatest = <T> (x: T[]) => x.slice(0, x.length -1)
-const withoutOldest = <T> (x: T[]) => x.slice(1, x.length)
-const addTo = <T> (x: (T | T[])[], y: T[] | T) => y ? [ ...x, y ] : x
 
 // when grouping actions we will get multidimensional arrays
 // so this helper is used to flatten the history
@@ -30,13 +25,13 @@ const flatten = <T> (x: (T | T[])[]) => [].concat(...x) as T[]
 
 
 // since the oldest past is the init action we never want to remove it from the past
-const doNPastStatesExit: DoNStatesExist = (past, nStates) => past.length > nStates
-const doNFutureStatesExit: DoNStatesExist = (future, nStates) => future.length >= nStates
+const doNPastStatesExist: DoNStatesExist = (past, nStates) => past.length > nStates
+const doNFutureStatesExist: DoNStatesExist = (future, nStates) => future.length >= nStates
 
 
 // actions can be an array of arrays because of grouped actions, so we flatten it first
-const calculateState: CalculateState = (reducer, actions) => 
-  flatten(actions).reduce(reducer, undefined)
+const calculateState: CalculateState = (reducer, actions, state) => 
+  flatten(actions).reduce(reducer, state)
 
 
 
@@ -52,13 +47,13 @@ const travelNStates: TravelNStates = (state, nStates, travelOne) => {
 
 const createUndo: CreateTravelOne = reducer => (state, nStates = 1) => {
 
-  if (!doNPastStatesExit(state.past, nStates)) {
+  if (!doNPastStatesExist(state.past, nStates))
     return state
-  }
 
-  const latestPast = latestFrom(state.past)
-  const futureWithLatestPast = addTo(state.future, latestPast)
-  const pastWithoutLatest = withoutLatest(state.past)
+
+  const latestPast = state.past[state.past.length - 1]
+  const futureWithLatestPast = [ latestPast, ...state.future ]
+  const pastWithoutLatest = state.past.slice(0, -1)
 
   return {
     past    : pastWithoutLatest,
@@ -72,26 +67,28 @@ const createUndo: CreateTravelOne = reducer => (state, nStates = 1) => {
 
 const createRedo: CreateTravelOne = reducer => (state, nStates = 1) => {
 
-  if (!doNFutureStatesExit(state.future, nStates)) {
+  if (!doNFutureStatesExist(state.future, nStates))
     return state
-  }
 
-  const latestFuture = latestFrom(state.future)
-  const pastWithLatestFuture = addTo(state.past, latestFuture)
+  const [ latestFuture, ...futureWithoutLatest ] = state.future
+  const pastWithLatestFuture = [ ...state.past, latestFuture ]
 
   return {
     past    : pastWithLatestFuture,
-    present : calculateState(reducer, pastWithLatestFuture),
-    future  : withoutLatest(state.future)
+    present : calculateState(reducer, [ latestFuture ], state.present),
+    future  : futureWithoutLatest 
   }
 
 }
 
 
 
-const addToHistory: AddToHistory = ( { past, future }, newPresent, actions) => {
+const updateHistory: UpdateHistory = (state, newPresent, action, comparator) => {
 
-  const newPast = addTo(past, actions)
+  if (comparator(state.present, newPresent))
+    return state
+
+  const newPast = [ ...state.past, action ]
 
   return {
     past    : newPast,
@@ -102,26 +99,63 @@ const addToHistory: AddToHistory = ( { past, future }, newPresent, actions) => {
 }
 
 
-const updateHistory: UpdateHistory = (state, newPresent, action, comparator) => {
+const getPastActions   = <S, A extends Action>(state: UndoableState<S, A>) => state.past
+const getPresentAction = <S, A extends Action>(state: UndoableState<S, A>) => state.past[0]
+const getFutureActions = <S, A extends Action>(state: UndoableState<S, A>) => state.future
+const getPresentState  = <S, A extends Action>(state: UndoableState<S, A>) => state.present
 
-  if (comparator(state.present, newPresent)) {
-    return state
-  }
+const getPastActionsFlattened   = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.past)
+const getPresentActionFlattened = <S, A extends Action>(state: UndoableState<S, A>) => getPastActionsFlattened(state)[0]
+const getFutureActionsFlattened = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.future)
 
-  return addToHistory(state, newPresent, action)
-}
+/**
+ * Creates the getFutureStates selector.
+ * 
+ * The selector is mapping the future actions to future states.
+ * It uses `reduce` instead of `map`, because this way we can reuse the
+ * previous future state to calculate the next future state.
+ * 
+ * @param reducer The Reducer that is used to replay actions from the future 
+ */
+const createGetFutureStates = <S, A extends Action>(reducer: Reducer<S, A>) => (state: UndoableState<S, A>): S[] =>
+  getFutureActions(state)
+    .reduce(
+      (states, a, i) =>
+        Array.isArray(a) // check if action is grouped
+          ? [ ...states, a.reduce(reducer, states[i]) ]
+          : [ ...states, reducer(states[i], a) ]
+      , [ getPresentState(state) ] as S[]
+    ).slice(1) // We start with present to calculate future states, but present state should not part be of future so we slice it off
 
 
+/**
+ * Creates the getPastStates selector.
+ * 
+ * The selector is mapping the past actions to past states.
+ * It uses `reduce` instead of `map`, because this way we can reuse the
+ * previous past state to calculate the next past state.
+ * 
+ * @param reducer The Reducer that is used to replay actions from the past 
+ */
+const createGetPastStates = <S, A extends Action>(reducer: Reducer<S, A>) => (state: UndoableState<S, A>): S[] =>
+  getPastActions(state).reduce(
+      (states, a, i) =>
+        Array.isArray(a) // check if action is grouped
+          ? [ ...states, a.reduce(reducer, states[i - 1]) ]
+          : [ ...states, reducer(states[i - 1], a) ]
+      , [ ] as S[]
+    ).slice(0, -1) // Slice the last state since its the present
 
-const createSelectors: CreateSelectors = reducer => {
+
+export const createSelectors = <S, A extends Action>(reducer: Reducer<S, A>) => {
 
   return {
-    getPastStates    : state => state.past.slice(1, state.past.length).map((a, i) => calculateState(reducer, state.past.slice(0, i + 1))),
-    getPresentState  : state => state.present,
-    getFutureStates  : state => [...state.future].reverse().map((a, i) => calculateState(reducer, state.past.concat([...state.future].reverse().slice(0, i + 1)))),
-    getPastActions   : state => flatten(state.past),
-    getLatestAction  : state => flatten(state.past)[0],
-    getFutureActions : state => flatten([...state.future].reverse())
+    getPresentState,
+    getPastStates: createGetPastStates(reducer),
+    getFutureStates: createGetFutureStates(reducer), 
+    getPastActions: getPastActionsFlattened,
+    getPresentAction: getPresentActionFlattened,
+    getFutureActions: getFutureActionsFlattened
   }
 
 }

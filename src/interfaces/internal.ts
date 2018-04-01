@@ -13,11 +13,6 @@ export interface CreateUndoableReducer {
 }
 
 
-export interface AddToHistory {
-  <S, A extends Action | Action>(undoable: UndoableState<S, A | Action>, newPresent: S, ...actions: A[]): UndoableState<S, A | Action>
-}
-
-
 export interface UpdateHistory {
   <S, A extends Action | Action>(undoable: UndoableState<S, A | Action>, newPresent: S, action: A, comparator: Comparator<S>): UndoableState<S, A | Action>
 }
@@ -44,7 +39,7 @@ export interface DoNStatesExist {
 
 
 export interface CalculateState {
-  <S, A extends Action | Action>(reducer: Reducer<S, A | Action>, actions: (A | A[])[]): S
+  <S, A extends Action | Action>(reducer: Reducer<S, A | Action>, actions: (A | A[])[], state?: S): S
 }
 
 

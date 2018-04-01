@@ -98,6 +98,6 @@ export interface Selectors<S, A extends Action> {
   getPresentState  : (state: UndoableState<S, A>) => S
   getFutureStates  : (state: UndoableState<S, A>) => S[]
   getPastActions   : (state: UndoableState<S, A>) => A[]
-  getLatestAction  : (state: UndoableState<S, A>) => A
+  getPresentAction : (state: UndoableState<S, A>) => A
   getFutureActions : (state: UndoableState<S, A>) => A[]
 }

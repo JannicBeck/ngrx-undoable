@@ -51,7 +51,7 @@ describe('The undoable.selectors', () => {
     const state: UndoableCounter = {
       past    : [ init() ],
       present : 0,
-      future  : [ decrement(), increment(), increment() ]
+      future  : [ increment(), increment(), decrement() ]
     }
 
     expect(selectors.getFutureStates(state)).toEqual([ 1, 2, 1 ])
@@ -63,7 +63,7 @@ describe('The undoable.selectors', () => {
     const state: UndoableCounter = {
       past    : [ init() ],
       present : 0,
-      future  : [ decrement(), increment(), increment() ]
+      future  : [ increment(), increment(), decrement() ]
     }
 
     expect(selectors.getFutureActions(state)).toEqual([ increment(), increment(), decrement() ])

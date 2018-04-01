@@ -112,7 +112,7 @@ undoableSelectors.getPastActions(state)
 [ { type: 'INIT' }, { type: 'INCREMENT' } ]
 ```
 ```js
-undoableSelectors.getLatestAction(state)
+undoableSelectors.getPresentAction(state)
 
 // The latest Action
 { type: 'INCREMENT' }

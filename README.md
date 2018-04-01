@@ -16,6 +16,15 @@ npm install ngrx-undoable --save
 yarn add ngrx-undoable --save
 ```
 
+## How it works
+If an `action` is dispatched it will call your reducer, then store the resulting state in `present` and add the `action` to the `past`.
+
+If an `Undo` action is dispatched, it calulcates the new state by **replaying** all the `past` actions and stores the action that was undone in the `future`.
+
+If a `Redo` action is dispatched, it reduces the present with the `future action` to calculate the new present. The action that was redone is then added to the past.
+
+**In order for this to work, your reducer has to be pure!**
+
 ## Usage
 ```js
 import { undoable } from 'ngrx-undoable'

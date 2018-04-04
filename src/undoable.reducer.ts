@@ -100,12 +100,12 @@ const updateHistory: UpdateHistory = (state, newPresent, action, comparator) => 
 
 
 const getPastActions   = <S, A extends Action>(state: UndoableState<S, A>) => state.past
-const getPresentAction = <S, A extends Action>(state: UndoableState<S, A>) => state.past[0]
+const getPresentAction = <S, A extends Action>(state: UndoableState<S, A>) => state.past[state.past.length - 1]
 const getFutureActions = <S, A extends Action>(state: UndoableState<S, A>) => state.future
 const getPresentState  = <S, A extends Action>(state: UndoableState<S, A>) => state.present
 
 const getPastActionsFlattened   = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.past)
-const getPresentActionFlattened = <S, A extends Action>(state: UndoableState<S, A>) => getPastActionsFlattened(state)[0]
+const getPresentActionFlattened = <S, A extends Action>(state: UndoableState<S, A>) => getPastActionsFlattened(state).slice(-1)[0]
 const getFutureActionsFlattened = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.future)
 
 /**

@@ -46,6 +46,18 @@ describe('The undoable.selectors', () => {
 
   })
 
+  it('should select the present action when actions are grouped', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init(), [ increment(), decrement() ] ],
+      present : 0,
+      future  : [ ]
+    }
+
+    expect(selectors.getPresentAction(state)).toEqual(decrement())
+
+  })
+
   it('should select the past actions', () => {
 
     const state: UndoableCounter = {

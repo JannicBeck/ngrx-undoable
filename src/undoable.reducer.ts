@@ -35,7 +35,7 @@ const calculateState: CalculateState = (reducer, actions, state) =>
 
 
 
-const travelNStates: TravelNStates = (state, nStates, travelOne) => {
+const travelNStates: TravelNStates = (state, nStates = 1, travelOne) => {
 
   if (nStates === 0) return state
 

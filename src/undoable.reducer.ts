@@ -104,9 +104,12 @@ const getPresentAction = <S, A extends Action>(state: UndoableState<S, A>) => st
 const getFutureActions = <S, A extends Action>(state: UndoableState<S, A>) => state.future
 const getPresentState  = <S, A extends Action>(state: UndoableState<S, A>) => state.present
 
-const getPastActionsFlattened   = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.past)
-const getPresentActionFlattened = <S, A extends Action>(state: UndoableState<S, A>) => getPastActionsFlattened(state).slice(-1)[0]
-const getFutureActionsFlattened = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.future)
+const getPastActionsFlattened        = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.past)
+const getPresentActionFlattened      = <S, A extends Action>(state: UndoableState<S, A>) => getPastActionsFlattened(state).slice(-1)[0]
+const getFutureActionsFlattened      = <S, A extends Action>(state: UndoableState<S, A>) => flatten(state.future)
+const getLatestFutureAction          = <S, A extends Action>(state: UndoableState<S, A>) => getFutureActions(state)[0]
+const getLatestFutureActionFlattened = <S, A extends Action>(state: UndoableState<S, A>) => getFutureActionsFlattened(state)[0]
+
 
 /**
  * Creates the getFutureStates selector.
@@ -153,9 +156,14 @@ export const createSelectors = <S, A extends Action>(reducer: Reducer<S, A>) => 
     getPresentState,
     getPastStates: createGetPastStates(reducer),
     getFutureStates: createGetFutureStates(reducer), 
-    getPastActions: getPastActionsFlattened,
-    getPresentAction: getPresentActionFlattened,
-    getFutureActions: getFutureActionsFlattened
+    getPastActions,
+    getPastActionsFlattened,
+    getPresentAction,
+    getPresentActionFlattened,
+    getFutureActions,
+    getFutureActionsFlattened,
+    getLatestFutureAction,
+    getLatestFutureActionFlattened
   }
 
 }

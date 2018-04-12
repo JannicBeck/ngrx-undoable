@@ -54,9 +54,34 @@ describe('The undoable.selectors', () => {
       future  : [ ]
     }
 
-    expect(selectors.getPresentAction(state)).toEqual(decrement())
+    expect(selectors.getPresentAction(state)).toEqual([ increment(), decrement() ])
 
   })
+
+  it('should select the present action flattened', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init(), increment(), decrement() ],
+      present : 0,
+      future  : [ ]
+    }
+
+    expect(selectors.getPresentActionFlattened(state)).toEqual(decrement())
+
+  })
+
+  it('should select the present action flattened when actions are grouped', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init(), [ increment(), decrement() ] ],
+      present : 0,
+      future  : [ ]
+    }
+
+    expect(selectors.getPresentActionFlattened(state)).toEqual(decrement())
+
+  })
+
 
   it('should select the past actions', () => {
 
@@ -67,6 +92,42 @@ describe('The undoable.selectors', () => {
     }
 
     expect(selectors.getPastActions(state)).toEqual([ init(), increment(), decrement() ])
+
+  })
+
+  it('should select the past actions with grouping', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init(), [ increment(), decrement() ] ],
+      present : 0,
+      future  : [ ]
+    }
+
+    expect(selectors.getPastActions(state)).toEqual([ init(), [ increment(), decrement() ] ])
+
+  })
+
+  it('should select the past actions if no grouping is present', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init(), increment(), decrement() ],
+      present : 0,
+      future  : [ ]
+    }
+
+    expect(selectors.getPastActionsFlattened(state)).toEqual([ init(), increment(), decrement() ])
+
+  })
+
+  it('should select the past actions flattened', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init(), [ increment(), decrement() ] ],
+      present : 0,
+      future  : [ ]
+    }
+
+    expect(selectors.getPastActionsFlattened(state)).toEqual([ init(), increment(), decrement() ])
 
   })
 
@@ -91,6 +152,54 @@ describe('The undoable.selectors', () => {
     }
 
     expect(selectors.getFutureActions(state)).toEqual([ increment(), increment(), decrement() ])
+
+  })
+
+  it('should select the latest future action', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init() ],
+      present : 0,
+      future  : [ increment(), decrement() ]
+    }
+
+    expect(selectors.getLatestFutureAction(state)).toEqual(increment())
+
+  })
+
+  it('should select the latest future action when it is grouped', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init() ],
+      present : 0,
+      future  : [ [ increment(), decrement() ], increment() ]
+    }
+
+    expect(selectors.getLatestFutureAction(state)).toEqual([ increment(), decrement() ])
+
+  })
+
+  it('should select the latest future action flattened', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init() ],
+      present : 0,
+      future  : [ increment(), decrement() ]
+    }
+
+    expect(selectors.getLatestFutureActionFlattened(state)).toEqual(increment())
+
+  })
+
+  it('should select the latest future action flattened', () => {
+
+    const state: UndoableCounter = {
+      past    : [ init() ],
+      present : 0,
+      future  : [ [ increment(), decrement() ], increment() ]
+    }
+
+    expect(selectors.getLatestFutureActionFlattened(state)).toEqual(increment())
 
   })
 

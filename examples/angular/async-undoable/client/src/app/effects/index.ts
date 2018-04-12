@@ -91,7 +91,7 @@ export class BearEffects {
   //  * Second alternative approach to handle async actions
   //  * 
   //  * If you don't like the approach above or it doesn't fit your use case, you might want to
-  //  * specify the undo counterparts for your async actions explicitly as special undo actions (e.g. UndoSelectSubredditAction)
+  //  * specify the undo counterparts for your async actions explicitly as special undo actions
   //  * which will then dispatch the actual undo action if the request was successful 
   // */
   @Effect() undoAddBear$ = this.actions$.pipe(

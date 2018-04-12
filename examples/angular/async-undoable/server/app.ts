@@ -11,10 +11,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.get("/", (req, res, next) => {
-  res.status(200).send('It Works!')
-})
-
-app.get("/bears", (req, res, next) => {
   res.status(200).json(Array.from(database).toString())
 })
 

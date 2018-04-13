@@ -1,4 +1,7 @@
 import { undoable } from 'ngrx-undoable';
+
 import { counter } from './counter';
 
-export default undoable(counter).reducer
+const undoableCounter = undoable(counter)
+export const reducer = undoableCounter.reducer
+export const selectors = undoableCounter.selectors

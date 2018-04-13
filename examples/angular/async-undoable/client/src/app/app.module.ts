@@ -1,17 +1,16 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { StoreModule, ActionReducerMap } from '@ngrx/store';
+import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { UndoableState } from 'ngrx-undoable';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { HttpClientModule } from '@angular/common/http';
 
 import { App } from './app.component';
 import { BearList } from './components/bear-list';
 import { BearAdd } from './components/bear-add';
-import { reducers } from './reducers';
 import { BearUndo } from './components/bear-undo';
 import { BearEffects } from './effects';
-import { HttpClientModule } from '@angular/common/http';
+import { reducers } from './reducers';
 import { BearService } from './services/bear.service';
 
 

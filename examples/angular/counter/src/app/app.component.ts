@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Store } from '@ngrx/store';
-import { increment, decrement, CounterAction } from './counter';
-import { undo, redo, group } from '../../../../../src/undoable.action';
-import { UndoableState } from '../../../../../src/interfaces/public';
-import { getPresentState, Root, getPastStates, getFutureStates } from './reducer';
+import { undo, redo, group } from 'ngrx-undoable';
+
+import { increment, decrement, CounterAction } from './actions';
+import { getPresentState, Root, getPastStates, getFutureStates } from './reducers';
 
 @Component({
-  selector: 'undoable-counter',
+  selector: 'app-root',
   template: `
     <button (click)="increment()">Increment</button>
     <button (click)="decrement()">Decrement</button>
@@ -30,8 +30,8 @@ import { getPresentState, Root, getPastStates, getFutureStates } from './reducer
     <button (click)="decrementGroup()">Group decrement</button>
     <button (click)="group()">Execute Group</button>
 
-    <ul *ngFor="let g of grouped">
-      <li>{{g.type}}</li>
+    <ul *ngFor="let a of grouped">
+      <li>{{a.type}}</li>
     </ul>
   `
 })

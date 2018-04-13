@@ -1,4 +1,4 @@
-enum Count {
+export enum Count {
   INCREMENT = 'INCREMENT',
   DECREMENT = 'DECREMENT',
   INIT      = 'INIT'
@@ -29,20 +29,3 @@ export const init = (): Init => {
 }
 
 export type CounterAction = Init | Increment | Decrement
-
-export const counter = (state = 0, action: CounterAction) => {
-
-  switch (action.type) {
-
-    case Count.INCREMENT:
-      return state + 1
-
-    case Count.DECREMENT:
-      return state - 1
-
-    default:
-      return state
-
-  }
-
-}

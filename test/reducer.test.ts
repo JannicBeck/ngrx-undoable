@@ -363,6 +363,26 @@ describe('The undoable.reducer', () => {
 
 
   describe('group actions', () => {
+    
+    it('should add grouped actions', () => {
+
+      const initialState: UndoableCounter = {
+        past    : [ init() ],
+        present : 0,
+        future  : [ ]
+      }
+
+      const groupAction = group(increment(), increment())
+
+      const actualState = reducer(initialState, groupAction)
+
+      expect(actualState).toEqual({
+        past    : [ init(), [ increment(), increment() ] ],
+        present : 2,
+        future  : [  ]
+      })
+
+    })
 
     it('should undo grouped actions', () => {
 

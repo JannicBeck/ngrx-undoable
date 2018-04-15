@@ -9,27 +9,27 @@ import {
 
 
 export interface CreateUndoableReducer {
-  <S, A extends Action | Action, I extends Action>(reducer: Reducer<S, A>, initAction: I, comparator: Comparator<S>) : UndoableReducer<S, A>
+  <S, A extends Action>(reducer: Reducer<S, A>, initAction: A, comparator: Comparator<S>) : UndoableReducer<S, A>
 }
 
 
 export interface UpdateHistory {
-  <S, A extends Action | Action>(undoable: UndoableState<S, A | Action>, newPresent: S, action: A, comparator: Comparator<S>): UndoableState<S, A | Action>
+  <S, A extends Action>(undoable: UndoableState<S, A>, newPresent: S, action: A, comparator: Comparator<S>): UndoableState<S, A>
 }
 
 
 export interface CreateTravelOne {
-  <S, A extends Action | Action>(reducer: Reducer<S, A | Action>): TravelOne<S, A>
+  <S, A extends Action>(reducer: Reducer<S, A>): TravelOne<S, A>
 }
 
 
-export interface TravelOne<S, A extends Action | Action> {
-  (state: UndoableState<S, A | Action>, nStates: number): UndoableState<S, A | Action>
+export interface TravelOne<S, A extends Action> {
+  (state: UndoableState<S, A>, nStates: number): UndoableState<S, A>
 }
 
 
 export interface TravelNStates {
-  <S, A extends Action | Action>(state: UndoableState<S, A | Action>, nStates: number, travelOne: TravelOne<S, A>): UndoableState<S, A | Action>
+  <S, A extends Action>(state: UndoableState<S, A>, nStates: number, travelOne: TravelOne<S, A>): UndoableState<S, A>
 }
 
 
@@ -39,7 +39,7 @@ export interface DoNStatesExist {
 
 
 export interface CalculateState {
-  <S, A extends Action | Action>(reducer: Reducer<S, A | Action>, actions: (A | A[])[], state?: S): S
+  <S, A extends Action>(reducer: Reducer<S, A>, actions: (A | A[])[], state?: S): S
 }
 
 

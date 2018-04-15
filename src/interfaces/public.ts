@@ -22,7 +22,7 @@ export interface Action {
  * 
  */
 export interface Reducer<S, A extends Action> {
-  (state: Readonly<S>, action: A | Action): S
+  (state: Readonly<S>, action: A): S
 }
 
 /**
@@ -53,16 +53,17 @@ export interface UndoableState<S, A extends Action> {
  * 
  */
 export interface Undoable {
-  <S, A extends Action, I extends Action>(reducer: Reducer<S, A | Action>, initAction?: I | Action, comparator?: Comparator<S>): UndoableMap<S, A>
+  <S, A extends Action>(reducer: Reducer<S, A>, initAction?: A, comparator?: Comparator<S>): UndoableMap<S, A>
 }
 
 export interface UndoableMap<S, A extends Action> {
   reducer   : UndoableReducer<S, A>
-  selectors : Selectors<S, A | Action>
+  selectors : Selectors<S, A>
+  setters   : Setters<S, A>
 }
 
 export interface UndoableReducer<S, A extends Action> {
-  (state: UndoableState<S, A | Action> | UndoableState<S, Action>, action: A | Action): UndoableState<S, A | Action> | UndoableState<S, Action>
+  (state: UndoableState<S, A>, action: A | UndoableAction): UndoableState<S, A>
 }
 
 /**
@@ -77,6 +78,11 @@ export interface UndoableReducer<S, A extends Action> {
  * 
  */
 export type Comparator<S> = (s1: S, s2: S) => boolean
+
+export interface Limit {
+  past   : number
+  future : number
+}
 
 /**
  * Selectors which can be used to select get the states from Undoable.
@@ -100,4 +106,9 @@ export interface Selectors<S, A extends Action> {
   getPastActions   : (state: UndoableState<S, A>) => A[]
   getPresentAction : (state: UndoableState<S, A>) => A
   getFutureActions : (state: UndoableState<S, A>) => A[]
+}
+
+export interface Setters<S, A extends Action> {
+  setPastActions   : (state: UndoableState<S, A>, past: UndoableState<S, A>['past'], present?: S) => UndoableState<S, A>
+  setFutureActions : (state: UndoableState<S, A>, future: UndoableState<S, A>['future']) => UndoableState<S, A>
 }

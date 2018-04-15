@@ -68,7 +68,7 @@ export const group = <A extends Action>(...actions: A[]): GroupAction<A> => {
 }
 
 
-export type UndoableAction<A extends Action>
+export type UndoableAction//<A extends Action>
   = UndoAction
   | RedoAction
-  | GroupAction<A>
+  // | GroupAction<A>

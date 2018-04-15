@@ -13,10 +13,25 @@ import {
   Action,
   Reducer,
   UndoableReducer,
-  UndoableState
+  UndoableState,
+  UndoableMap,
+  Setters,
+  Limit
 } from './interfaces/public';
 
-import { UndoableTypes } from './undoable.action';
+import { UndoableTypes, UndoableAction, GroupAction, UndoAction, RedoAction } from './undoable.action';
+
+
+/**
+ * Checks whether the passed value is an integer.
+ * 
+ * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+ */
+const isInteger = Number.isInteger || function (value) {
+  return typeof value === "number" && 
+    isFinite(value) && 
+    Math.floor(value) === value
+}
 
 
 // when grouping actions we will get multidimensional arrays
@@ -37,6 +52,10 @@ const calculateState: CalculateState = (reducer, actions, state) =>
 
 const travelNStates: TravelNStates = (state, nStates, travelOne) => {
 
+  if (!isInteger(nStates)) {
+    throw new Error(`The payload has to be an integer but instead received: ${nStates}`)
+  }
+
   if (nStates === 0) return state
 
   return travelNStates(travelOne(state, nStates), --nStates, travelOne)
@@ -49,7 +68,6 @@ const createUndo: CreateTravelOne = reducer => (state, nStates = 1) => {
 
   if (!doNPastStatesExist(state.past, nStates))
     return state
-
 
   const latestPast = state.past[state.past.length - 1]
   const futureWithLatestPast = [ latestPast, ...state.future ]
@@ -160,83 +178,132 @@ export const createSelectors: CreateSelectors = reducer => {
 
 }
 
+type LimitState<S, A extends Action> = UndoableState<S, A> & { limitState: S }
 
-const createLimit = setters => {
+const limitReducer = <S, A extends Action>(undoable: UndoableMap<S, A>, limit: Limit) => {
 
-  const limit = (undoableReducer, initAction, limit) => {
+  const initUndoableReducer = "ngrx-undoable/INIT_UNDOABLE"
 
-  const initialUndoableState = undoableReducer(undefined, initAction)
+  const undoableReducer = undoable.reducer
+  const setters = undoable.setters
+  const selectors = undoable.selectors
+  const initialUndoableState = undoable.reducer(undefined, { type: initUndoableReducer } as any)
 
-  const initialState = {
+  const initialState: LimitState<S, A> = {
     ...initialUndoableState,
     limitState: getPresentState(initialUndoableState)
   }
 
-  return (state = initialState, action) => {
+  const limitPast = (state: LimitState<S, A>, newState: LimitState<S, A>) => {
 
-    switch (action.type) {
+    const pastActions = getPastActions(state)
 
-      case UndoableTypes.UNDO: {
-        const newState = undoableReducer(state, action)
-        const futureLength = getFutureActions(state).length
-        if (futureLength > limit.future)
-          return setters.setFutureActions(newState.slice(0, futureLength - limit.future))
-      }
+    if (pastActions.length > limit.past) {
 
-      case UndoableTypes.REDO: {
-        const newState = undoableReducer(state, action)
-        const pastLength = getPastActions(state).length
-        if (pastLength > limit.past)
-          return setters.setPastActions(newState.slice(pastLength - limit.past))
-      }
+      const newPast = pastActions.slice(pastActions.length - limit.past)
+      const limitState = selectors.getPastStates(newState)[pastActions.length - limit.past]
 
-      case UndoableTypes.GROUP: {
-        const newState = undoableReducer(state, action)
-        const pastLength = getPastActions(state).length
-        if (pastLength > limit.past)
-          return setters.setPastActions(newState.slice(pastLength - limit.past))
-      }
-
-      default: {
-        return { 
-          ...state,
-          ...undoableReducer(state, action)
-        }
+      return {
+        ...setters.setPastActions(newState, newPast, getPresentState(newState)),
+        limitState
       }
 
     }
-    
+
+    return newState
+
+  }
+
+  const limitFuture = (state: LimitState<S, A>, newState: LimitState<S, A>) => {
+
+    const futureActions = getFutureActions(state)
+
+    if (futureActions.length > limit.future)
+      return setters.setFutureActions(newState, futureActions.slice(0, futureActions.length - limit.future))
+
+  }
+
+  return (state = initialState, action: UndoableAction | GroupAction<A> | A) => {
+
+    const newState = undoableReducer(state, action as UndoableAction | A) as LimitState<S, A>
+
+    if (isUndoAction(action))
+      return limitFuture(state, newState)
+
+    if (isRedoAction(action))
+      return limitPast(state, newState)
+
+    if (isGroupAction(action))
+      return limitPast(state, newState)
+
+    return limitPast(state, newState)
+
   }
 
 }
 
+export const isGroupAction = <A extends Action>(action: A | UndoableAction | GroupAction<A>): action is GroupAction<A> => action.type === UndoableTypes.GROUP
 
+export const groupReducer = <S, A extends Action>(undoable: UndoableMap<S, A>, reducer: Reducer<S, A>) => {
+
+  const undoableReducer = undoable.reducer
+  const setters = undoable.setters
+  const selectors = undoable.selectors
+  const initialState = undoable.reducer(undefined, {} as any)
+
+  return (state = initialState, action: UndoableAction | A | GroupAction<A>) => {
+
+    if (isGroupAction(action)) {
+
+      if (!Array.isArray(action.payload))
+        throw new Error(`The payload has to be an array of actions but instead received: ${action.payload}`)
+
+      const newPast = [ ...selectors.getPastActions(state), action.payload ]
+      const newPresent = action.payload.reduce(reducer, state.present)
+
+      return setters.setPastActions(state, newPast, newPresent)
+
+    }
+
+    return undoableReducer(state, action)
+
+  }
+ 
 }
 
 
+export const createSetters = <S, A extends Action>(reducer: Reducer<S, A>): Setters<S, A> => ({
 
-export const createSetters = <S, A extends Action>(reducer: Reducer<S, A>) => ({
+  setPastActions: (state: UndoableState<S, A> , past: (A | A[])[], present: S): UndoableState<S, A> => {
 
-  setPastActions: <T extends UndoableState<S, A>>(state: T , newPast: (A | A[])[]): T => ({
-    ...state as any,
-    present: calculateState(reducer, newPast),
-    past: newPast 
-  }),
+    if (!present) {
+      present = calculateState(reducer, past)
+    }
 
-  setFutureActions: <T extends UndoableState<S, A>>(state: T, newFuture: (A | A[])[]): T => ({
-    ...state as any,
-    past: newFuture 
+    return {
+      ...state,
+      past,
+      present
+    }
+
+  },
+
+  setFutureActions: (state: UndoableState<S, A>, future: (A | A[])[]): UndoableState<S, A> => ({
+    ...state,
+    future 
   })
 
 })
 
+const isUndoAction = <A extends Action>(action: A | UndoableAction): action is UndoAction => action.type === UndoableTypes.UNDO
+const isRedoAction = <A extends Action>(action: A | UndoableAction): action is RedoAction => action.type === UndoableTypes.REDO
 
 const createUndoableReducer: CreateUndoableReducer = (reducer, initAction, comparator) => {
 
   const initialState = {
     past    : [ initAction ],
     present : reducer(undefined, initAction),
-    future  : [ ] as Action[]
+    future  : [ ] as any
   }
 
   const undo = createUndo(reducer)
@@ -244,37 +311,24 @@ const createUndoableReducer: CreateUndoableReducer = (reducer, initAction, compa
 
   return (state = initialState, action) => {
 
-    switch (action.type) {
+    if (isUndoAction(action))
+      return travelNStates(state, action.payload, undo)
 
-      case UndoableTypes.UNDO:
-        return travelNStates(state, action.payload, undo)
+    if (isRedoAction(action))
+      return travelNStates(state, action.payload, redo)
 
-      case UndoableTypes.REDO:
-        return travelNStates(state, action.payload, redo)
-
-      case UndoableTypes.GROUP:
-        return updateHistory(state, action.payload.reduce(reducer, state.present), action.payload, comparator)
-
-      default:
-        return updateHistory(state, reducer(state.present, action), action, comparator)
-
-    }
+    return updateHistory(state, reducer(state.present, action), action, comparator)
 
   }
 
 }
 
-
-
-export const undoable: Undoable = (reducer, initAction = { type: 'ngrx-undoable/INIT' } as Action, comparator = (s1, s2) => s1 === s2) => {
-  
-  // const cache = new WeakMap()
-  // limit ? createLimit(setters)(createUndoableReducer()) : createUndoableReducer()
+export const undoable: Undoable = (reducer, initAction = { type: 'ngrx-undoable/INIT' } as any, comparator = (s1, s2) => s1 === s2) => {
 
   return {
-    reducer   : createUndoableReducer(reducer, initAction, comparator),
-    selectors : createSelectors(reducer),
-    setters   : createSetters(reducer)
+    reducer  : createUndoableReducer(reducer, initAction, comparator),
+    selectors: createSelectors(reducer),
+    setters  : createSetters(reducer)
   }
 
 }
